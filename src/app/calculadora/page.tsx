@@ -1,15 +1,15 @@
 import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalculadoraForm } from "./calculadora-form";
+import { CartelaForm } from "./cartela-form";
 
 export const metadata = { title: "Calculadora" };
 
 export default async function CalculadoraPage() {
   const user = await verifySession();
 
-  // Carrega catálogo do banco. Decimais do Prisma viram number para serializar
-  // no boundary Server → Client. Filtra apenas itens ativos.
   const [materiaisRaw, impressoesRaw, acabamentosRaw, config] = await Promise.all([
     prisma.material.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } }),
     prisma.tipoImpressao.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } }),
@@ -43,13 +43,30 @@ export default async function CalculadoraPage() {
       <AppHeader user={user} breadcrumbs={[{ label: "Calculadora" }]} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
-        <CalculadoraForm
-          materiais={materiais}
-          impressoes={impressoes}
-          acabamentos={acabamentos}
-          margemMinimaPct={margemMinimaPct}
-          empresaNome={empresaNome}
-        />
+        <Tabs defaultValue="m2" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="m2">Por medida (m²)</TabsTrigger>
+            <TabsTrigger value="cartela">Por cartela</TabsTrigger>
+          </TabsList>
+          <TabsContent value="m2">
+            <CalculadoraForm
+              materiais={materiais}
+              impressoes={impressoes}
+              acabamentos={acabamentos}
+              margemMinimaPct={margemMinimaPct}
+              empresaNome={empresaNome}
+            />
+          </TabsContent>
+          <TabsContent value="cartela">
+            <CartelaForm
+              materiais={materiais}
+              impressoes={impressoes}
+              acabamentos={acabamentos}
+              margemMinimaPct={margemMinimaPct}
+              empresaNome={empresaNome}
+            />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
