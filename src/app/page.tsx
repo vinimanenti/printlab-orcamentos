@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calculator, Settings, Users } from "lucide-react";
+import { Calculator, Settings, Users, FileText } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,24 +19,30 @@ export default async function DashboardPage() {
           <p className="text-muted-foreground">O que você quer fazer agora?</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <DashCard
+            href="/orcamentos"
+            icon={<FileText className="size-5" />}
+            title="Orçamentos"
+            desc="Lista, novo, status e WhatsApp."
+          />
           <DashCard
             href="/calculadora"
             icon={<Calculator className="size-5" />}
-            title="Calculadora de adesivos"
-            desc="Preço por medida, material e acabamento. Texto pronto pro WhatsApp."
-          />
-          <DashCard
-            href="/configuracoes"
-            icon={<Settings className="size-5" />}
-            title="Configurações"
-            desc="Materiais, tipos de impressão e acabamentos do catálogo."
+            title="Calculadora"
+            desc="Cotação rápida sem persistir."
           />
           <DashCard
             href="/clientes"
             icon={<Users className="size-5" />}
             title="Clientes"
-            desc="Cadastro, busca e edição. Vinculam-se aos orçamentos."
+            desc="Cadastro, busca e edição."
+          />
+          <DashCard
+            href="/configuracoes"
+            icon={<Settings className="size-5" />}
+            title="Configurações"
+            desc="Catálogo de preços."
           />
         </div>
 
@@ -53,8 +59,8 @@ export default async function DashboardPage() {
               <li>✅ Calculadora de adesivos</li>
               <li>✅ Configurações de materiais/impressões/acabamentos</li>
               <li>✅ Clientes (cadastro e busca)</li>
-              <li>⏳ Orçamentos persistidos com numeração</li>
-              <li>⏳ PDF do orçamento</li>
+              <li>✅ Orçamentos persistidos com numeração</li>
+              <li>⏳ PDF do orçamento (em breve)</li>
             </ul>
             <p className="mt-4 text-sm text-muted-foreground">
               Plano completo em{" "}
