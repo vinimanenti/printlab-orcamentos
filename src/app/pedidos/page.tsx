@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/page-header";
 import {
   Table,
   TableBody,
@@ -69,18 +70,21 @@ export default async function PedidosPage({
     <div className="min-h-screen">
       <AppHeader user={user} breadcrumbs={[{ label: "Pedidos" }]} />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-4">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold">Pedidos</h1>
-            <p className="text-muted-foreground text-sm">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-5">
+        <PageHeader
+          eyebrow="Produção"
+          title="Pedidos"
+          description={
+            <>
               {pedidos.length} {pedidos.length === 1 ? "encontrado" : "encontrados"}.
-            </p>
-          </div>
-          <Link href="/producao" className={buttonVariants({ variant: "outline" })}>
-            Kanban de produção →
-          </Link>
-        </div>
+            </>
+          }
+          actions={
+            <Link href="/producao" className={buttonVariants({ variant: "outline" })}>
+              Kanban →
+            </Link>
+          }
+        />
 
         <div className="flex flex-wrap gap-2 text-sm">
           {statusFiltros.map((f) => (
@@ -142,7 +146,9 @@ export default async function PedidosPage({
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={info.variant}>{info.label}</Badge>
+                        <Badge variant={info.variant} className={info.className}>
+                          {info.label}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-sm">
                         {p.prazoEntrega ? (

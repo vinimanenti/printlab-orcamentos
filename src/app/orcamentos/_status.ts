@@ -3,12 +3,12 @@ import type { OrcamentoStatus } from "@prisma/client";
 export type StatusInfo = {
   label: string;
   variant: "default" | "secondary" | "destructive" | "outline";
+  className?: string;
   desc: string;
 };
 
 /**
- * Apresentação dos status de orçamento — label em PT-BR, badge variant
- * e uma descrição curta usada em tooltip ou tela de detalhe.
+ * Apresentação dos status de orçamento.
  *
  * Estados do orçamento (conforme docs/02-fluxo-orcamento-pedido.md):
  *
@@ -16,6 +16,9 @@ export type StatusInfo = {
  *                                       └─► PERDIDO
  *                ↓
  *               CANCELADO
+ *
+ * Cores: APROVADO = cyan (sucesso identitário), PERDIDO = magenta (alerta
+ * de perda), EM_NEGOCIACAO = yellow (atenção). Resto neutro.
  */
 export const statusInfo: Record<OrcamentoStatus, StatusInfo> = {
   RASCUNHO: {
@@ -30,12 +33,14 @@ export const statusInfo: Record<OrcamentoStatus, StatusInfo> = {
   },
   EM_NEGOCIACAO: {
     label: "Em negociação",
-    variant: "default",
+    variant: "outline",
+    className: "border-yellow text-yellow",
     desc: "Cliente pediu ajustes; novo retorno esperado.",
   },
   APROVADO: {
     label: "Aprovado",
     variant: "default",
+    className: "bg-cyan hover:bg-cyan/90 text-white border-cyan",
     desc: "Cliente aprovou. Pronto para virar pedido.",
   },
   PERDIDO: {
@@ -55,7 +60,7 @@ export const transicoesValidas: Record<OrcamentoStatus, OrcamentoStatus[]> = {
   RASCUNHO: ["ENVIADO", "CANCELADO"],
   ENVIADO: ["EM_NEGOCIACAO", "APROVADO", "PERDIDO"],
   EM_NEGOCIACAO: ["ENVIADO", "APROVADO", "PERDIDO"],
-  APROVADO: [], // só pode virar pedido — fluxo coberto na Fase 2
-  PERDIDO: ["RASCUNHO"], // permite reabrir como rascunho
+  APROVADO: [],
+  PERDIDO: ["RASCUNHO"],
   CANCELADO: ["RASCUNHO"],
 };

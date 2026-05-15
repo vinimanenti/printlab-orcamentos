@@ -111,7 +111,9 @@ export default async function PedidoDetalhePage({
           <div className="space-y-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-semibold">Pedido #{p.numero}</h1>
-              <Badge variant={info.variant}>{info.label}</Badge>
+              <Badge variant={info.variant} className={info.className}>
+                {info.label}
+              </Badge>
             </div>
             <p className="text-muted-foreground text-sm">
               Para <strong>{p.cliente.nome}</strong> · criado em{" "}

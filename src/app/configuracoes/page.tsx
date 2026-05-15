@@ -4,6 +4,7 @@ import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Configurações" };
 
@@ -21,12 +22,11 @@ export default async function ConfiguracoesPage() {
       <AppHeader user={user} breadcrumbs={[{ label: "Configurações" }]} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Configurações</h1>
-          <p className="text-muted-foreground">
-            Ajuste o catálogo e os preços que alimentam a calculadora.
-          </p>
-        </div>
+        <PageHeader
+          eyebrow="Sistema"
+          title="Configurações"
+          description="Ajuste o catálogo e os preços que alimentam a calculadora."
+        />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ConfigCard

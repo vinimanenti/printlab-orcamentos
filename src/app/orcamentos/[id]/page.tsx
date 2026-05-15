@@ -77,7 +77,9 @@ export default async function OrcamentoDetalhePage({
           <div className="space-y-1">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-semibold">Orçamento #{o.numero}</h1>
-              <Badge variant={info.variant}>{info.label}</Badge>
+              <Badge variant={info.variant} className={info.className}>
+                {info.label}
+              </Badge>
             </div>
             <p className="text-muted-foreground text-sm">
               Para <strong>{o.cliente.nome}</strong> · criado em{" "}

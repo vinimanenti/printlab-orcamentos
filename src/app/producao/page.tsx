@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/calculadoras";
 import { statusInfo } from "../pedidos/_status";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Produção" };
 
@@ -45,18 +46,21 @@ export default async function ProducaoPage() {
     <div className="min-h-screen">
       <AppHeader user={user} breadcrumbs={[{ label: "Produção" }]} />
 
-      <main className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6 space-y-4">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold">Produção · Kanban</h1>
-            <p className="text-muted-foreground text-sm">
+      <main className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6 space-y-5">
+        <PageHeader
+          eyebrow="Chão de fábrica"
+          title="Kanban de produção"
+          description={
+            <>
               {pedidos.length} pedido(s) ativos. Clique em um card para abrir.
-            </p>
-          </div>
-          <Link href="/pedidos" className="text-sm underline">
-            Ver lista de pedidos →
-          </Link>
-        </div>
+            </>
+          }
+          actions={
+            <Link href="/pedidos" className="text-sm underline">
+              Lista de pedidos →
+            </Link>
+          }
+        />
 
         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 min-h-[500px]">
           {colunas.map((status) => {

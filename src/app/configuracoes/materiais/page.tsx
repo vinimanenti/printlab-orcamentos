@@ -13,6 +13,7 @@ import {
 import { formatBRL } from "@/lib/calculadoras";
 import { MaterialDialog } from "./material-dialog";
 import { AtivoToggle } from "../_components/ativo-toggle";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Materiais" };
 
@@ -34,19 +35,20 @@ export default async function MateriaisPage() {
         ]}
       />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-4">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold">Materiais</h1>
-            <p className="text-muted-foreground text-sm">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-5">
+        <PageHeader
+          eyebrow="Catálogo"
+          title="Materiais"
+          description={
+            <>
               {materiais.length} cadastrados.{" "}
               {!isAdmin && (
-                <span className="text-amber-700">Somente leitura — apenas administradores podem editar.</span>
+                <span className="text-yellow">Somente leitura — apenas administradores podem editar.</span>
               )}
-            </p>
-          </div>
-          {isAdmin && <MaterialDialog variant="new" />}
-        </div>
+            </>
+          }
+          actions={isAdmin && <MaterialDialog variant="new" />}
+        />
 
         <div className="border rounded-md bg-card overflow-hidden">
           <Table>

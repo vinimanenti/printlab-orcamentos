@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatBRL } from "@/lib/calculadoras";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Relatórios" };
 
@@ -165,34 +166,37 @@ export default async function RelatoriosPage({
       <AppHeader user={user} breadcrumbs={[{ label: "Relatórios" }]} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-6">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold">Relatórios</h1>
-            <p className="text-muted-foreground text-sm">
+        <PageHeader
+          eyebrow="Gerência"
+          title="Relatórios"
+          description={
+            <>
               {format(inicio, "dd 'de' MMM", { locale: ptBR })} —{" "}
               {format(fim, "dd 'de' MMM 'de' yyyy", { locale: ptBR })}
-            </p>
-          </div>
-          <div className="flex gap-2 text-sm">
-            {[
-              { key: "30d", label: "Últimos 30 dias" },
-              { key: "mes", label: "Mês corrente" },
-              { key: "ano", label: "Este ano" },
-            ].map((p) => (
-              <Link
-                key={p.key}
-                href={`/relatorios?periodo=${p.key}`}
-                className={`px-3 py-1.5 rounded-md border ${
-                  periodo === p.key
-                    ? "bg-foreground text-background border-foreground"
-                    : "bg-card hover:bg-muted"
-                }`}
-              >
-                {p.label}
-              </Link>
-            ))}
-          </div>
-        </div>
+            </>
+          }
+          actions={
+            <div className="flex gap-2 text-sm">
+              {[
+                { key: "30d", label: "30 dias" },
+                { key: "mes", label: "Mês" },
+                { key: "ano", label: "Ano" },
+              ].map((p) => (
+                <Link
+                  key={p.key}
+                  href={`/relatorios?periodo=${p.key}`}
+                  className={`px-3 py-1.5 rounded-md border text-xs uppercase tracking-wider font-semibold ${
+                    periodo === p.key
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-card hover:bg-muted"
+                  }`}
+                >
+                  {p.label}
+                </Link>
+              ))}
+            </div>
+          }
+        />
 
         {/* ============ KPI CARDS ============ */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ClienteDialog } from "./cliente-dialog";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Clientes" };
 
@@ -54,19 +55,20 @@ export default async function ClientesPage({
     <div className="min-h-screen">
       <AppHeader user={user} breadcrumbs={[{ label: "Clientes" }]} />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-4">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold">Clientes</h1>
-            <p className="text-muted-foreground text-sm">
-              {clientes.length} {termo ? "resultados" : "ativos"}.{" "}
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-5">
+        <PageHeader
+          eyebrow="Cadastro"
+          title="Clientes"
+          description={
+            <>
+              {clientes.length} {termo ? "resultado(s)" : "ativo(s)"}.{" "}
               {!podeEditar && (
-                <span className="text-amber-700">Somente leitura para seu perfil.</span>
+                <span className="text-yellow">Somente leitura para seu perfil.</span>
               )}
-            </p>
-          </div>
-          {podeEditar && <ClienteDialog variant="new" />}
-        </div>
+            </>
+          }
+          actions={podeEditar && <ClienteDialog variant="new" />}
+        />
 
         <form className="flex gap-2 max-w-xl" action="/clientes" method="get">
           <div className="relative flex-1">

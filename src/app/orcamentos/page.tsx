@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/page-header";
 import {
   Table,
   TableBody,
@@ -68,20 +69,23 @@ export default async function OrcamentosPage({
     <div className="min-h-screen">
       <AppHeader user={user} breadcrumbs={[{ label: "Orçamentos" }]} />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-4">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold">Orçamentos</h1>
-            <p className="text-muted-foreground text-sm">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-5">
+        <PageHeader
+          eyebrow="Comercial"
+          title="Orçamentos"
+          description={
+            <>
               {orcamentos.length} {orcamentos.length === 1 ? "encontrado" : "encontrados"}.
-            </p>
-          </div>
-          {podeEditar && (
-            <Link href="/orcamentos/novo" className={buttonVariants({ variant: "default" })}>
-              <Plus className="size-4" /> Novo orçamento
-            </Link>
-          )}
-        </div>
+            </>
+          }
+          actions={
+            podeEditar && (
+              <Link href="/orcamentos/novo" className={buttonVariants({ variant: "default" })}>
+                <Plus className="size-4" /> Novo orçamento
+              </Link>
+            )
+          }
+        />
 
         {/* Filtros de status */}
         <div className="flex flex-wrap gap-2 text-sm">
@@ -141,7 +145,9 @@ export default async function OrcamentosPage({
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={info.variant}>{info.label}</Badge>
+                        <Badge variant={info.variant} className={info.className}>
+                          {info.label}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right tabular-nums font-medium">
                         {formatBRL(Number(o.total))}

@@ -13,6 +13,7 @@ import {
 import { formatBRL } from "@/lib/calculadoras";
 import { AtivoToggle } from "../_components/ativo-toggle";
 import { ImpressaoDialog } from "./impressao-dialog";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Tipos de impressão" };
 
@@ -34,21 +35,22 @@ export default async function ImpressoesPage() {
         ]}
       />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-4">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold">Tipos de impressão</h1>
-            <p className="text-muted-foreground text-sm">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-5">
+        <PageHeader
+          eyebrow="Catálogo"
+          title="Tipos de impressão"
+          description={
+            <>
               {items.length} cadastrados.{" "}
               {!isAdmin && (
-                <span className="text-amber-700">
+                <span className="text-yellow">
                   Somente leitura — apenas administradores podem editar.
                 </span>
               )}
-            </p>
-          </div>
-          {isAdmin && <ImpressaoDialog variant="new" />}
-        </div>
+            </>
+          }
+          actions={isAdmin && <ImpressaoDialog variant="new" />}
+        />
 
         <div className="border rounded-md bg-card overflow-hidden">
           <Table>

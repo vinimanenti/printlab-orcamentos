@@ -2,6 +2,7 @@ import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader } from "@/components/page-header";
 import { CalculadoraForm } from "./calculadora-form";
 import { CartelaForm } from "./cartela-form";
 
@@ -42,7 +43,12 @@ export default async function CalculadoraPage() {
     <div className="min-h-screen">
       <AppHeader user={user} breadcrumbs={[{ label: "Calculadora" }]} />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-6">
+        <PageHeader
+          eyebrow="Cotação rápida"
+          title="Calculadora de adesivos"
+          description="Por medida ou por cartela. Resultado ao vivo com texto pronto para WhatsApp."
+        />
         <Tabs defaultValue="m2" className="space-y-4">
           <TabsList>
             <TabsTrigger value="m2">Por medida (m²)</TabsTrigger>

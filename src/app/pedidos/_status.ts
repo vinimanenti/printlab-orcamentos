@@ -3,6 +3,7 @@ import type { PedidoStatus, EtapaStatus, EtapaTipo } from "@prisma/client";
 export type StatusInfo = {
   label: string;
   variant: "default" | "secondary" | "destructive" | "outline";
+  className?: string;
   desc: string;
 };
 
@@ -11,6 +12,9 @@ export type StatusInfo = {
  *
  *   AGUARDANDO_ARTE → ARTE_EM_APROVACAO → EM_PRODUCAO → ACABAMENTO → PRONTO → ENTREGUE
  *                                                                        └─► CANCELADO
+ *
+ * Cores CMYK: PRONTO = cyan (sucesso), ENTREGUE = ink (concluído neutro),
+ * ARTE_EM_APROVACAO = yellow (atenção - aguardando), CANCELADO = magenta.
  */
 export const statusInfo: Record<PedidoStatus, StatusInfo> = {
   AGUARDANDO_ARTE: {
@@ -20,7 +24,8 @@ export const statusInfo: Record<PedidoStatus, StatusInfo> = {
   },
   ARTE_EM_APROVACAO: {
     label: "Arte em aprovação",
-    variant: "default",
+    variant: "outline",
+    className: "border-yellow text-yellow",
     desc: "Cliente revisando a arte antes da produção.",
   },
   EM_PRODUCAO: {
@@ -36,6 +41,7 @@ export const statusInfo: Record<PedidoStatus, StatusInfo> = {
   PRONTO: {
     label: "Pronto",
     variant: "default",
+    className: "bg-cyan hover:bg-cyan/90 text-white border-cyan",
     desc: "Acabado e embalado. Aguardando retirada/envio.",
   },
   ENTREGUE: {
@@ -50,7 +56,6 @@ export const statusInfo: Record<PedidoStatus, StatusInfo> = {
   },
 };
 
-/** Transições permitidas a partir de cada status. */
 export const transicoesValidas: Record<PedidoStatus, PedidoStatus[]> = {
   AGUARDANDO_ARTE: ["ARTE_EM_APROVACAO", "EM_PRODUCAO", "CANCELADO"],
   ARTE_EM_APROVACAO: ["EM_PRODUCAO", "AGUARDANDO_ARTE", "CANCELADO"],
@@ -72,12 +77,11 @@ export const etapaInfo: Record<EtapaTipo, { label: string; emoji: string }> = {
 
 export const etapaStatusInfo: Record<EtapaStatus, { label: string; color: string }> = {
   PENDENTE: { label: "Pendente", color: "text-muted-foreground" },
-  EM_ANDAMENTO: { label: "Em andamento", color: "text-amber-700" },
-  CONCLUIDA: { label: "Concluída", color: "text-emerald-700" },
+  EM_ANDAMENTO: { label: "Em andamento", color: "text-yellow" },
+  CONCLUIDA: { label: "Concluída", color: "text-cyan" },
   PULADA: { label: "Pulada", color: "text-muted-foreground line-through" },
 };
 
-/** Ordem para exibição/agrupamento (do início ao fim da produção) */
 export const ordemStatusPedido: PedidoStatus[] = [
   "AGUARDANDO_ARTE",
   "ARTE_EM_APROVACAO",

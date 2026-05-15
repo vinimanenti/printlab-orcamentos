@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/app-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TemplateDialog } from "./template-dialog";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Templates de mensagem" };
 
@@ -25,20 +26,19 @@ export default async function TemplatesPage() {
         ]}
       />
 
-      <main className="mx-auto max-w-4xl px-4 sm:px-6 py-8 space-y-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Templates de mensagem</h1>
-          <p className="text-muted-foreground text-sm">
-            Textos prontos enviados ao cliente pelo WhatsApp. Use{" "}
-            <code className="bg-muted px-1 rounded">{"{{variavel}}"}</code> para campos
-            substituídos automaticamente. Variáveis disponíveis variam por template.
-          </p>
-          {!isAdmin && (
-            <p className="text-amber-700 text-sm mt-2">
-              Somente leitura — apenas administradores podem editar.
-            </p>
-          )}
-        </div>
+      <main className="mx-auto max-w-4xl px-4 sm:px-6 py-8 space-y-5">
+        <PageHeader
+          eyebrow="Comunicação"
+          title="Templates de mensagem"
+          description={
+            <>
+              Textos prontos enviados ao cliente pelo WhatsApp. Use{" "}
+              <code className="bg-muted px-1 rounded font-mono">{"{{variavel}}"}</code> para campos
+              substituídos automaticamente.
+              {!isAdmin && <span className="text-yellow"> Somente leitura.</span>}
+            </>
+          }
+        />
 
         <div className="grid gap-3">
           {templates.map((t) => (
