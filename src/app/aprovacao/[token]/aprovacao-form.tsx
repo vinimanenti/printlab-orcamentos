@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { aprovarArtePublica } from "@/lib/actions/arte";
@@ -34,80 +33,87 @@ export function AprovacaoForm({ token }: { token: string }) {
 
   if (modo === null) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Sua resposta</CardTitle>
-          <CardDescription>
-            Por favor, revise a arte com atenção. Após aprovar, a produção começa imediatamente —
-            ajustes posteriores são cobrados à parte.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid sm:grid-cols-2 gap-3">
-          <Button
-            size="lg"
+      <section className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="label-eyebrow">Sua decisão</h2>
+          <p className="text-sm text-muted-foreground max-w-xl">
+            Revise a arte e os itens com atenção. Após aprovar, a produção
+            começa imediatamente — ajustes posteriores são cobrados à parte.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <button
+            type="button"
             disabled={pending}
             onClick={() => setModo("APROVADA")}
-            className="h-14"
+            className="group border-2 border-foreground bg-foreground text-background rounded-md p-6 text-left hover:bg-cyan hover:border-cyan transition-colors disabled:opacity-50"
           >
-            <Check className="size-5" /> Aprovar arte
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
+            <Check className="size-6 mb-3" />
+            <div className="font-semibold text-lg">Aprovar arte</div>
+            <div className="text-sm opacity-80 mt-1">
+              Tudo certo. Pode iniciar a produção.
+            </div>
+          </button>
+          <button
+            type="button"
             disabled={pending}
             onClick={() => setModo("AJUSTE_SOLICITADO")}
-            className="h-14"
+            className="border-2 border-foreground rounded-md p-6 text-left hover:bg-muted transition-colors disabled:opacity-50"
           >
-            <X className="size-5" /> Solicitar ajuste
-          </Button>
-        </CardContent>
-      </Card>
+            <X className="size-6 mb-3" />
+            <div className="font-semibold text-lg">Solicitar ajuste</div>
+            <div className="text-sm text-muted-foreground mt-1">
+              Tem algo pra mudar. Vou descrever embaixo.
+            </div>
+          </button>
+        </div>
+      </section>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">
+    <section className="space-y-4">
+      <div className="space-y-2">
+        <h2 className="label-eyebrow">
           {modo === "APROVADA" ? "Confirmar aprovação" : "Descreva o ajuste"}
-        </CardTitle>
-        <CardDescription>
+        </h2>
+        <p className="text-sm text-muted-foreground">
           {modo === "APROVADA"
             ? "A produção será liberada após sua confirmação."
             : "Seja específico para a equipe ajustar de primeira."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="comentario">
-            {modo === "APROVADA" ? "Mensagem (opcional)" : "O que precisa mudar?"}
-          </Label>
-          <Textarea
-            id="comentario"
-            rows={4}
-            value={comentario}
-            onChange={(e) => setComentario(e.target.value)}
-            placeholder={
-              modo === "APROVADA"
-                ? "Algum comentário antes da produção?"
-                : "ex: O texto na lateral precisa ficar maior. A cor de fundo está clara demais."
-            }
-            autoFocus
-          />
-        </div>
-        <div className="grid sm:grid-cols-2 gap-2">
-          <Button variant="outline" disabled={pending} onClick={() => setModo(null)}>
-            Voltar
-          </Button>
-          <Button disabled={pending} onClick={() => responder(modo)}>
-            {pending
-              ? "Enviando…"
-              : modo === "APROVADA"
-                ? "Confirmar aprovação"
-                : "Enviar pedido de ajuste"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </p>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="comentario">
+          {modo === "APROVADA" ? "Mensagem (opcional)" : "O que precisa mudar?"}
+        </Label>
+        <Textarea
+          id="comentario"
+          rows={4}
+          value={comentario}
+          onChange={(e) => setComentario(e.target.value)}
+          placeholder={
+            modo === "APROVADA"
+              ? "Algum comentário antes da produção?"
+              : "ex: O texto na lateral precisa ficar maior. A cor de fundo está clara demais."
+          }
+          autoFocus
+        />
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-2 pt-2">
+        <Button variant="outline" disabled={pending} onClick={() => setModo(null)}>
+          Voltar
+        </Button>
+        <Button disabled={pending} onClick={() => responder(modo)} size="lg">
+          {pending
+            ? "Enviando…"
+            : modo === "APROVADA"
+              ? "✓ Confirmar aprovação"
+              : "Enviar pedido de ajuste"}
+        </Button>
+      </div>
+    </section>
   );
 }

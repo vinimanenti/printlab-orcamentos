@@ -11,146 +11,198 @@ import { ptBR } from "date-fns/locale";
 import { formatBRL } from "@/lib/calculadoras";
 
 /**
- * Documento PDF do orçamento. Renderizado server-side via
- * @react-pdf/renderer (sem Chrome headless — funciona em serverless).
+ * PDF editorial do orçamento PrintLab.
  *
- * Layout pensado para A4 retrato, 1 página normal, 2+ se muitos itens.
+ * Layout estilo specimen tipográfico: bastante white space, hierarquia
+ * tipográfica forte, tira CMYK como elemento de marca. Renderizado
+ * server-side com @react-pdf/renderer (sem Chrome headless).
  */
+
+// Paleta CMYK em RGB (react-pdf não entende oklch)
+const CYAN = "#00a4d6";
+const MAGENTA = "#d9008a";
+const YELLOW = "#e8c300";
+const INK = "#111111";
+const MUTED = "#666666";
+const RULE = "#dddddd";
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 32,
-    paddingBottom: 40,
-    paddingHorizontal: 36,
+    paddingTop: 36,
+    paddingBottom: 50,
+    paddingHorizontal: 40,
     fontSize: 10,
     fontFamily: "Helvetica",
-    color: "#111",
+    color: INK,
   },
 
-  // ===== HEADER =====
-  header: {
+  // ===== HEADER COM TIRA CMYK =====
+  marcaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  marcaTexto: { fontSize: 16, fontFamily: "Helvetica-Bold" },
+  cmykStrip: {
+    flexDirection: "row",
+    gap: 1,
+    marginHorizontal: 3,
+  },
+  cmykSquare: { width: 5, height: 5 },
+
+  topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 20,
-    paddingBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#111",
+    marginBottom: 28,
   },
-  empresaNome: { fontSize: 16, fontFamily: "Helvetica-Bold", color: "#111" },
-  empresaSub: { fontSize: 9, color: "#666", marginTop: 2 },
   badge: {
-    backgroundColor: "#111",
-    color: "#fff",
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-    fontSize: 9,
+    fontSize: 8,
+    color: INK,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
     fontFamily: "Helvetica-Bold",
-    letterSpacing: 1,
   },
 
-  // ===== TÍTULO =====
+  // ===== TÍTULO BLOCK =====
+  tituloBlock: {
+    marginBottom: 28,
+    paddingBottom: 18,
+    borderBottomWidth: 2,
+    borderBottomColor: INK,
+  },
+  eyebrow: {
+    fontSize: 7,
+    color: MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    marginBottom: 8,
+    fontFamily: "Helvetica-Bold",
+  },
   titulo: {
-    fontSize: 22,
+    fontSize: 38,
     fontFamily: "Helvetica-Bold",
-    marginTop: 6,
-    marginBottom: 4,
+    letterSpacing: -1,
+    lineHeight: 1,
   },
-  meta: { color: "#666", fontSize: 10 },
+  meta: { color: MUTED, fontSize: 10, marginTop: 8 },
 
-  // ===== BLOCOS CLIENTE / CONDIÇÕES =====
+  // ===== BLOCOS (cliente / condições) =====
   duasColunas: {
     flexDirection: "row",
-    gap: 20,
-    marginTop: 18,
-    marginBottom: 18,
+    gap: 24,
+    marginBottom: 28,
   },
   coluna: { flex: 1 },
   rotulo: {
-    fontSize: 8,
-    color: "#666",
+    fontSize: 7,
+    color: MUTED,
     textTransform: "uppercase",
-    letterSpacing: 0.8,
-    marginBottom: 4,
+    letterSpacing: 1.5,
+    marginBottom: 6,
     fontFamily: "Helvetica-Bold",
   },
-  campo: { fontSize: 10, marginBottom: 2 },
-  campoForte: { fontSize: 11, fontFamily: "Helvetica-Bold" },
+  campo: { fontSize: 10, marginBottom: 3, color: INK },
+  campoForte: { fontSize: 13, fontFamily: "Helvetica-Bold", marginBottom: 6 },
 
-  // ===== TABELA DE ITENS =====
-  tabela: { marginTop: 8, borderTopWidth: 1, borderTopColor: "#111" },
+  // ===== TABELA =====
+  tabela: {
+    marginTop: 4,
+    borderTopWidth: 1.5,
+    borderTopColor: INK,
+  },
   thead: {
     flexDirection: "row",
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: "#111",
+    paddingVertical: 7,
+    borderBottomWidth: 0.5,
+    borderBottomColor: INK,
     fontFamily: "Helvetica-Bold",
-    fontSize: 9,
-    color: "#111",
+    fontSize: 7,
+    color: INK,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   trow: {
     flexDirection: "row",
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#ccc",
-    minHeight: 28,
+    borderBottomColor: RULE,
+    minHeight: 32,
   },
-  tcol_n: { width: 22 },
-  tcol_desc: { flex: 1, paddingRight: 6 },
-  tcol_med: { width: 70 },
-  tcol_qtd: { width: 30, textAlign: "right" },
-  tcol_unit: { width: 60, textAlign: "right" },
-  tcol_tot: { width: 70, textAlign: "right" },
-  descSub: { fontSize: 8, color: "#666", marginTop: 2 },
+  tcol_n: { width: 22, color: MUTED, fontSize: 8 },
+  tcol_desc: { flex: 1, paddingRight: 8 },
+  tcol_med: { width: 70, fontSize: 9 },
+  tcol_qtd: { width: 32, textAlign: "right" },
+  tcol_unit: { width: 65, textAlign: "right" },
+  tcol_tot: { width: 75, textAlign: "right", fontFamily: "Helvetica-Bold" },
+  descPrincipal: { fontSize: 10, fontFamily: "Helvetica-Bold" },
+  descSub: { fontSize: 8, color: MUTED, marginTop: 2 },
 
   // ===== TOTAIS =====
+  totaisWrap: {
+    marginTop: 18,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
   totais: {
-    marginTop: 14,
-    alignSelf: "flex-end",
-    minWidth: 220,
+    width: 240,
+    borderTopWidth: 1,
+    borderTopColor: INK,
+    paddingTop: 12,
   },
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 3,
     fontSize: 10,
+    color: MUTED,
   },
   totalFinal: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 8,
-    marginTop: 4,
-    borderTopWidth: 1,
-    borderTopColor: "#111",
+    paddingVertical: 12,
+    marginTop: 6,
+    borderTopWidth: 2,
+    borderTopColor: INK,
     fontFamily: "Helvetica-Bold",
-    fontSize: 13,
+    fontSize: 16,
+    color: INK,
   },
 
-  // ===== OBS / FOOTER =====
+  // ===== OBS =====
   obs: {
-    marginTop: 22,
-    padding: 10,
-    backgroundColor: "#f4f4f4",
-    borderRadius: 4,
+    marginTop: 28,
+    padding: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: CYAN,
+    backgroundColor: "#fafafa",
   },
-  obsTitulo: { fontFamily: "Helvetica-Bold", fontSize: 10, marginBottom: 4 },
-  obsTexto: { fontSize: 10, lineHeight: 1.4 },
+  obsRotulo: {
+    fontSize: 7,
+    fontFamily: "Helvetica-Bold",
+    color: MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  obsTexto: { fontSize: 10, lineHeight: 1.5 },
 
+  // ===== RODAPÉ =====
   rodape: {
     position: "absolute",
-    bottom: 18,
-    left: 36,
-    right: 36,
+    bottom: 22,
+    left: 40,
+    right: 40,
     flexDirection: "row",
     justifyContent: "space-between",
-    fontSize: 8,
-    color: "#888",
+    alignItems: "flex-end",
+    fontSize: 7,
+    color: MUTED,
+    paddingTop: 10,
     borderTopWidth: 0.5,
-    borderTopColor: "#ccc",
-    paddingTop: 6,
+    borderTopColor: RULE,
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
 });
 
@@ -191,6 +243,21 @@ export type OrcamentoPDFData = {
   };
 };
 
+function PrintLabMarkPdf() {
+  return (
+    <View style={styles.marcaRow}>
+      <Text style={styles.marcaTexto}>Print</Text>
+      <View style={styles.cmykStrip}>
+        <View style={[styles.cmykSquare, { backgroundColor: CYAN }]} />
+        <View style={[styles.cmykSquare, { backgroundColor: MAGENTA }]} />
+        <View style={[styles.cmykSquare, { backgroundColor: YELLOW }]} />
+        <View style={[styles.cmykSquare, { backgroundColor: INK }]} />
+      </View>
+      <Text style={styles.marcaTexto}>Lab</Text>
+    </View>
+  );
+}
+
 export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
   const validadeAte = addDays(data.criadoEm, data.validadeDias);
 
@@ -201,36 +268,39 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
       creator={data.empresa.nome}
     >
       <Page size="A4" style={styles.page}>
-        {/* HEADER */}
-        <View style={styles.header} fixed>
+        {/* TOPO */}
+        <View style={styles.topRow} fixed>
           <View>
-            <Text style={styles.empresaNome}>{data.empresa.nome}</Text>
-            <Text style={styles.empresaSub}>
+            <PrintLabMarkPdf />
+            <Text style={{ fontSize: 8, color: MUTED, marginTop: 4, letterSpacing: 1 }}>
               {data.empresa.telefone}
-              {data.empresa.email ? ` · ${data.empresa.email}` : ""}
+              {data.empresa.email ? `  ·  ${data.empresa.email}` : ""}
             </Text>
             {data.empresa.endereco ? (
-              <Text style={styles.empresaSub}>{data.empresa.endereco}</Text>
+              <Text style={{ fontSize: 8, color: MUTED }}>{data.empresa.endereco}</Text>
             ) : null}
           </View>
-          <Text style={styles.badge}>ORÇAMENTO</Text>
+          <Text style={styles.badge}>· Orçamento ·</Text>
         </View>
 
-        {/* TÍTULO */}
-        <Text style={styles.titulo}>#{String(data.numero).padStart(4, "0")}</Text>
-        <Text style={styles.meta}>
-          Emitido em {format(data.criadoEm, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })} · vendedor{" "}
-          {data.vendedor.nome}
-        </Text>
+        {/* TÍTULO BLOCK */}
+        <View style={styles.tituloBlock}>
+          <Text style={styles.eyebrow}>Nº do orçamento</Text>
+          <Text style={styles.titulo}>#{String(data.numero).padStart(4, "0")}</Text>
+          <Text style={styles.meta}>
+            Emitido em {format(data.criadoEm, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+            {"  ·  "}vendedor {data.vendedor.nome}
+          </Text>
+        </View>
 
         {/* CLIENTE + CONDIÇÕES */}
         <View style={styles.duasColunas}>
           <View style={styles.coluna}>
-            <Text style={styles.rotulo}>Cliente</Text>
+            <Text style={styles.rotulo}>Para</Text>
             <Text style={styles.campoForte}>{data.cliente.nome}</Text>
             {data.cliente.documento && (
               <Text style={styles.campo}>
-                {data.cliente.tipo === "PJ" ? "CNPJ" : "CPF"}:{" "}
+                {data.cliente.tipo === "PJ" ? "CNPJ" : "CPF"}{" "}
                 {formatDoc(data.cliente.documento, data.cliente.tipo)}
               </Text>
             )}
@@ -240,20 +310,25 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
           <View style={styles.coluna}>
             <Text style={styles.rotulo}>Condições</Text>
             <Text style={styles.campo}>
-              Validade: {format(validadeAte, "dd/MM/yyyy", { locale: ptBR })} ({data.validadeDias} dias)
+              <Text style={{ fontFamily: "Helvetica-Bold" }}>Validade:</Text>{" "}
+              {format(validadeAte, "dd/MM/yyyy", { locale: ptBR })} ({data.validadeDias} dias)
             </Text>
             {data.prazoEntregaDias != null && (
               <Text style={styles.campo}>
-                Prazo de produção: {data.prazoEntregaDias} dias após aprovação
+                <Text style={{ fontFamily: "Helvetica-Bold" }}>Prazo de produção:</Text>{" "}
+                {data.prazoEntregaDias} dias após aprovação
               </Text>
             )}
             {data.condicoesPagamento && (
-              <Text style={styles.campo}>Pagamento: {data.condicoesPagamento}</Text>
+              <Text style={styles.campo}>
+                <Text style={{ fontFamily: "Helvetica-Bold" }}>Pagamento:</Text>{" "}
+                {data.condicoesPagamento}
+              </Text>
             )}
           </View>
         </View>
 
-        {/* TABELA */}
+        {/* TABELA DE ITENS */}
         <View style={styles.tabela}>
           <View style={styles.thead}>
             <Text style={styles.tcol_n}>#</Text>
@@ -265,9 +340,9 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
           </View>
           {data.itens.map((it, ix) => (
             <View style={styles.trow} key={ix} wrap={false}>
-              <Text style={styles.tcol_n}>{ix + 1}</Text>
+              <Text style={styles.tcol_n}>{String(ix + 1).padStart(2, "0")}</Text>
               <View style={styles.tcol_desc}>
-                <Text>{it.descricao}</Text>
+                <Text style={styles.descPrincipal}>{it.descricao}</Text>
                 <Text style={styles.descSub}>
                   {[it.material, it.impressao, it.acabamento].filter(Boolean).join(" · ") || " "}
                 </Text>
@@ -283,27 +358,29 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
         </View>
 
         {/* TOTAIS */}
-        <View style={styles.totais}>
-          <View style={styles.totalRow}>
-            <Text>Subtotal</Text>
-            <Text>{formatBRL(data.subtotal)}</Text>
-          </View>
-          {data.desconto > 0 && (
+        <View style={styles.totaisWrap}>
+          <View style={styles.totais}>
             <View style={styles.totalRow}>
-              <Text>Desconto</Text>
-              <Text>− {formatBRL(data.desconto)}</Text>
+              <Text>Subtotal</Text>
+              <Text>{formatBRL(data.subtotal)}</Text>
             </View>
-          )}
-          <View style={styles.totalFinal}>
-            <Text>Total</Text>
-            <Text>{formatBRL(data.total)}</Text>
+            {data.desconto > 0 && (
+              <View style={styles.totalRow}>
+                <Text>Desconto</Text>
+                <Text>− {formatBRL(data.desconto)}</Text>
+              </View>
+            )}
+            <View style={styles.totalFinal}>
+              <Text>Total</Text>
+              <Text>{formatBRL(data.total)}</Text>
+            </View>
           </View>
         </View>
 
         {/* OBSERVAÇÕES */}
         {data.observacoes ? (
           <View style={styles.obs}>
-            <Text style={styles.obsTitulo}>Observações</Text>
+            <Text style={styles.obsRotulo}>Observações</Text>
             <Text style={styles.obsTexto}>{data.observacoes}</Text>
           </View>
         ) : null}
@@ -311,11 +388,11 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
         {/* RODAPÉ */}
         <View style={styles.rodape} fixed>
           <Text>
-            {data.empresa.nome} — orçamento #{data.numero}
+            {data.empresa.nome}  ·  Orçamento {String(data.numero).padStart(4, "0")}
           </Text>
           <Text
             render={({ pageNumber, totalPages }) =>
-              `página ${pageNumber} de ${totalPages}`
+              `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`
             }
           />
         </View>
@@ -335,5 +412,4 @@ function formatDoc(doc: string, tipo: "PF" | "PJ"): string {
   return d;
 }
 
-// Suppress font registration warnings (we use built-in Helvetica)
 Font.registerHyphenationCallback((word) => [word]);
