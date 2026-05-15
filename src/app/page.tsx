@@ -38,6 +38,26 @@ export default async function DashboardPage() {
           <PlaceholderCard label="Vendido no mês" value="R$ —" />
         </div>
 
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Link href="/calculadora" className="block group">
+            <Card className="transition-colors group-hover:border-foreground/30">
+              <CardHeader>
+                <CardTitle>🧮 Calculadora de adesivos</CardTitle>
+                <CardDescription>
+                  Calcule preço por medida, material e acabamento. Gera texto pronto para WhatsApp.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Card className="opacity-60">
+            <CardHeader>
+              <CardTitle>📋 Clientes & Orçamentos</CardTitle>
+              <CardDescription>Em construção — próxima entrega.</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle>Fase 1 do MVP em construção</CardTitle>
@@ -47,10 +67,10 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ul className="grid gap-2 sm:grid-cols-2 text-sm">
-              <li>• Clientes (cadastro e busca)</li>
-              <li>• Orçamentos (novo, listar, PDF)</li>
-              <li>• Calculadora de adesivos</li>
-              <li>• Configurações (materiais, impressões, acabamentos)</li>
+              <li>✅ Calculadora de adesivos</li>
+              <li>⏳ Clientes (cadastro e busca)</li>
+              <li>⏳ Orçamentos (novo, listar, PDF)</li>
+              <li>⏳ Configurações (materiais, impressões, acabamentos)</li>
             </ul>
             <p className="mt-4 text-sm text-muted-foreground">
               Plano completo em{" "}
