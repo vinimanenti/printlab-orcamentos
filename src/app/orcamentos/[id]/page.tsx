@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FileDown } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { verifySession } from "@/lib/session";
@@ -82,6 +83,14 @@ export default async function OrcamentoDetalhePage({
             <p className="text-muted-foreground text-xs">{info.desc}</p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <Link
+              href={`/orcamentos/${o.id}/pdf`}
+              target="_blank"
+              rel="noopener"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              <FileDown className="size-4" /> PDF
+            </Link>
             <WhatsAppButton
               cliente={o.cliente}
               numero={o.numero}
