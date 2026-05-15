@@ -20,8 +20,9 @@ import {
 import { formatBRL, formatM2 } from "@/lib/calculadoras";
 import { statusInfo, transicoesValidas } from "../_status";
 import { StatusActions } from "./status-actions";
-import { WhatsAppButton } from "./whatsapp-button";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ConverterButton } from "./converter-button";
+import { renderTemplateOrFallback } from "@/lib/templates";
 
 export const metadata = { title: "Orçamento" };
 
@@ -63,6 +64,38 @@ export default async function OrcamentoDetalhePage({
   const transicoes = transicoesValidas[o.status];
   const validadeAte = addDays(o.criadoEm, o.validadeDias);
 
+  // Renderiza texto do WhatsApp via template editável.
+  // Variáveis disponíveis: {{cliente}}, {{numero}}, {{total}}, {{validade}},
+  // {{prazo}}, {{itens}}, {{empresa}}
+  const itensLinhas = o.itens
+    .map((it, ix) => {
+      const detalhes = [it.material?.nome, it.impressao?.nome, it.acabamento?.nome]
+        .filter(Boolean)
+        .join(" · ");
+      return `${ix + 1}. *${it.descricao}*
+   📐 ${Number(it.larguraCm)} × ${Number(it.alturaCm)} cm × ${it.quantidade} un${detalhes ? `\n   ${detalhes}` : ""}
+   ${formatBRL(Number(it.precoUnitario))}/un · *${formatBRL(Number(it.precoTotal))}*`;
+    })
+    .join("\n\n");
+
+  const textoWhatsApp = await renderTemplateOrFallback(
+    "orcamento_envio",
+    {
+      cliente: o.cliente.nome,
+      numero: `#${String(o.numero).padStart(4, "0")}`,
+      total: formatBRL(Number(o.total)),
+      validade: format(validadeAte, "dd/MM/yyyy", { locale: ptBR }),
+      prazo:
+        o.prazoEntregaDias != null
+          ? `${o.prazoEntregaDias} dias após aprovação`
+          : "a combinar",
+      itens: itensLinhas,
+      empresa: config?.empresaNome ?? "PrintLab",
+    },
+    // Fallback caso o template tenha sido excluído acidentalmente
+    "Olá {{cliente}}, segue o orçamento {{numero}} da {{empresa}}:\n\n{{itens}}\n\n*Total: {{total}}*\nValidade: {{validade}}",
+  );
+
   return (
     <div className="min-h-screen">
       <AppHeader
@@ -99,23 +132,8 @@ export default async function OrcamentoDetalhePage({
               <FileDown className="size-4" /> PDF
             </Link>
             <WhatsAppButton
-              cliente={o.cliente}
-              numero={o.numero}
-              total={Number(o.total)}
-              validadeAte={validadeAte}
-              empresaNome={config?.empresaNome ?? "PrintLab"}
-              itens={o.itens.map((it) => ({
-                descricao: it.descricao,
-                quantidade: it.quantidade,
-                larguraCm: Number(it.larguraCm),
-                alturaCm: Number(it.alturaCm),
-                precoUnitario: Number(it.precoUnitario),
-                precoTotal: Number(it.precoTotal),
-                material: it.material?.nome,
-                impressao: it.impressao?.nome,
-                acabamento: it.acabamento?.nome,
-              }))}
-              prazoDias={o.prazoEntregaDias}
+              texto={textoWhatsApp}
+              telefone={o.cliente.whatsapp || o.cliente.telefone}
             />
             {podeEditar && transicoes.length > 0 && (
               <StatusActions orcamentoId={o.id} atual={o.status} motivos={motivos} />

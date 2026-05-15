@@ -24,6 +24,7 @@ import { EtapaActions } from "./etapa-actions";
 import { ArtePanel } from "./arte-panel";
 import { ChecklistPanel } from "./checklist-panel";
 import { PagamentosPanel } from "./pagamentos-panel";
+import { AvisarCliente } from "./avisar-cliente";
 
 export const metadata = { title: "Pedido" };
 
@@ -97,6 +98,12 @@ export default async function PedidoDetalhePage({
   const podeFinanceiro = user.perfil === "ADM" || user.perfil === "VEN" || user.perfil === "FIN";
   const info = statusInfo[p.status];
   const transicoes = transicoesValidas[p.status];
+
+  const config = await prisma.configuracaoSistema.findUnique({
+    where: { id: "singleton" },
+    select: { empresaNome: true },
+  });
+  const saldoAberto = Math.max(0, Number(p.total) - Number(p.totalPago));
 
   return (
     <div className="min-h-screen">
@@ -172,6 +179,16 @@ export default async function PedidoDetalhePage({
             </CardContent>
           </Card>
         </div>
+
+        {/* AVISAR CLIENTE — texto vem do template correspondente ao status */}
+        <AvisarCliente
+          status={p.status}
+          cliente={p.cliente}
+          numero={p.numero}
+          total={Number(p.total)}
+          saldo={saldoAberto}
+          empresaNome={config?.empresaNome ?? "PrintLab"}
+        />
 
         {/* ARTE */}
         <ArtePanel
