@@ -23,6 +23,7 @@ import { StatusActions } from "./status-actions";
 import { EtapaActions } from "./etapa-actions";
 import { ArtePanel } from "./arte-panel";
 import { ChecklistPanel } from "./checklist-panel";
+import { PagamentosPanel } from "./pagamentos-panel";
 
 export const metadata = { title: "Pedido" };
 
@@ -60,6 +61,9 @@ export default async function PedidoDetalhePage({
       aprovacoes: {
         orderBy: { criadaEm: "desc" },
       },
+      pagamentos: {
+        orderBy: { criadoEm: "desc" },
+      },
     },
   });
   if (!p) notFound();
@@ -88,6 +92,7 @@ export default async function PedidoDetalhePage({
     : null;
 
   const podeEditar = user.perfil === "ADM" || user.perfil === "VEN" || user.perfil === "PRO";
+  const podeFinanceiro = user.perfil === "ADM" || user.perfil === "VEN" || user.perfil === "FIN";
   const info = statusInfo[p.status];
   const transicoes = transicoesValidas[p.status];
 
@@ -188,6 +193,24 @@ export default async function PedidoDetalhePage({
 
         {/* CHECKLIST DE ARTE */}
         <ChecklistPanel pedidoId={p.id} initial={checklist} podeEditar={podeEditar} />
+
+        {/* PAGAMENTOS */}
+        <PagamentosPanel
+          pedidoId={p.id}
+          total={Number(p.total)}
+          totalPago={Number(p.totalPago)}
+          pagamentos={p.pagamentos.map((pg) => ({
+            id: pg.id,
+            valor: Number(pg.valor),
+            metodo: pg.metodo,
+            status: pg.status,
+            vencimento: pg.vencimento,
+            pagoEm: pg.pagoEm,
+            observacoes: pg.observacoes,
+          }))}
+          podeEditar={podeFinanceiro}
+          isAdmin={user.perfil === "ADM"}
+        />
 
         {/* ETAPAS DE PRODUÇÃO */}
         <Card>
