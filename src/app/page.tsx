@@ -33,11 +33,10 @@ export default async function DashboardPage() {
             desc="Materiais, tipos de impressão e acabamentos do catálogo."
           />
           <DashCard
-            href="#"
+            href="/clientes"
             icon={<Users className="size-5" />}
-            title="Clientes & Orçamentos"
-            desc="Em construção — próxima entrega."
-            disabled
+            title="Clientes"
+            desc="Cadastro, busca e edição. Vinculam-se aos orçamentos."
           />
         </div>
 
@@ -53,7 +52,7 @@ export default async function DashboardPage() {
               <li>✅ Login e perfis</li>
               <li>✅ Calculadora de adesivos</li>
               <li>✅ Configurações de materiais/impressões/acabamentos</li>
-              <li>⏳ Clientes (cadastro e busca)</li>
+              <li>✅ Clientes (cadastro e busca)</li>
               <li>⏳ Orçamentos persistidos com numeração</li>
               <li>⏳ PDF do orçamento</li>
             </ul>
