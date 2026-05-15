@@ -313,7 +313,14 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
             {data.empresa.logoDataUrl ? (
               <Image
                 src={data.empresa.logoDataUrl}
-                style={{ maxHeight: 25, maxWidth: 110, marginBottom: 4, objectFit: "contain" }}
+                style={{
+                  // Apenas altura — largura segue proporção natural,
+                  // sem caixa centralizada que causaria offset à esquerda
+                  height: 25,
+                  marginBottom: 6,
+                  // Garante que a Image se comporte como bloco alinhado à esquerda
+                  alignSelf: "flex-start",
+                }}
               />
             ) : (
               <PrintLabMarkPdf />
