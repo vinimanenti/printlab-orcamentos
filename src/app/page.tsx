@@ -1,76 +1,61 @@
 import Link from "next/link";
+import { Calculator, Settings, Users } from "lucide-react";
 import { verifySession } from "@/lib/session";
+import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/auth";
 
 export const metadata = { title: "Dashboard" };
-
-async function logoutAction() {
-  "use server";
-  await signOut({ redirectTo: "/login" });
-}
 
 export default async function DashboardPage() {
   const user = await verifySession();
 
   return (
     <div className="min-h-screen">
-      <header className="border-b">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">PrintLab Orçamentos</h1>
-            <p className="text-sm text-muted-foreground">Olá, {user.nome}</p>
-          </div>
-          <form action={logoutAction}>
-            <Button type="submit" variant="outline" size="sm">
-              Sair
-            </Button>
-          </form>
-        </div>
-      </header>
+      <AppHeader user={user} />
 
-      <main className="mx-auto max-w-6xl px-6 py-8 space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <PlaceholderCard label="Orçamentos hoje" value="—" />
-          <PlaceholderCard label="Orçamentos no mês" value="—" />
-          <PlaceholderCard label="Pedidos em aberto" value="—" />
-          <PlaceholderCard label="Vendido no mês" value="R$ —" />
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold">Olá, {user.nome}</h1>
+          <p className="text-muted-foreground">O que você quer fazer agora?</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link href="/calculadora" className="block group">
-            <Card className="transition-colors group-hover:border-foreground/30">
-              <CardHeader>
-                <CardTitle>🧮 Calculadora de adesivos</CardTitle>
-                <CardDescription>
-                  Calcule preço por medida, material e acabamento. Gera texto pronto para WhatsApp.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-
-          <Card className="opacity-60">
-            <CardHeader>
-              <CardTitle>📋 Clientes & Orçamentos</CardTitle>
-              <CardDescription>Em construção — próxima entrega.</CardDescription>
-            </CardHeader>
-          </Card>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <DashCard
+            href="/calculadora"
+            icon={<Calculator className="size-5" />}
+            title="Calculadora de adesivos"
+            desc="Preço por medida, material e acabamento. Texto pronto pro WhatsApp."
+          />
+          <DashCard
+            href="/configuracoes"
+            icon={<Settings className="size-5" />}
+            title="Configurações"
+            desc="Materiais, tipos de impressão e acabamentos do catálogo."
+          />
+          <DashCard
+            href="#"
+            icon={<Users className="size-5" />}
+            title="Clientes & Orçamentos"
+            desc="Em construção — próxima entrega."
+            disabled
+          />
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Fase 1 do MVP em construção</CardTitle>
+            <CardTitle>Fase 1 do MVP</CardTitle>
             <CardDescription>
-              O sistema está no esqueleto inicial. Próximas telas a entrar no ar:
+              Em construção. As funcionalidades a seguir entram no ar uma a uma.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="grid gap-2 sm:grid-cols-2 text-sm">
+              <li>✅ Login e perfis</li>
               <li>✅ Calculadora de adesivos</li>
+              <li>✅ Configurações de materiais/impressões/acabamentos</li>
               <li>⏳ Clientes (cadastro e busca)</li>
-              <li>⏳ Orçamentos (novo, listar, PDF)</li>
-              <li>⏳ Configurações (materiais, impressões, acabamentos)</li>
+              <li>⏳ Orçamentos persistidos com numeração</li>
+              <li>⏳ PDF do orçamento</li>
             </ul>
             <p className="mt-4 text-sm text-muted-foreground">
               Plano completo em{" "}
@@ -89,13 +74,37 @@ export default async function DashboardPage() {
   );
 }
 
-function PlaceholderCard({ label, value }: { label: string; value: string }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-2xl tabular-nums">{value}</CardTitle>
+function DashCard({
+  href,
+  icon,
+  title,
+  desc,
+  disabled,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  disabled?: boolean;
+}) {
+  const card = (
+    <Card
+      className={
+        disabled
+          ? "opacity-50 cursor-not-allowed h-full"
+          : "transition-colors group-hover:border-foreground/30 h-full"
+      }
+    >
+      <CardHeader>
+        <div className="text-muted-foreground">{icon}</div>
+        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardDescription>{desc}</CardDescription>
       </CardHeader>
     </Card>
+  );
+  return disabled ? card : (
+    <Link href={href} className="block group">
+      {card}
+    </Link>
   );
 }

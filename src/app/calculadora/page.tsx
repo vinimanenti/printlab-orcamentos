@@ -1,16 +1,9 @@
-import Link from "next/link";
 import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/auth";
+import { AppHeader } from "@/components/app-header";
 import { CalculadoraForm } from "./calculadora-form";
 
 export const metadata = { title: "Calculadora" };
-
-async function logoutAction() {
-  "use server";
-  await signOut({ redirectTo: "/login" });
-}
 
 export default async function CalculadoraPage() {
   const user = await verifySession();
@@ -47,24 +40,7 @@ export default async function CalculadoraPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-baseline gap-4">
-            <Link href="/" className="text-xl font-semibold">
-              PrintLab Orçamentos
-            </Link>
-            <span className="text-sm text-muted-foreground">/ Calculadora</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:inline">{user.nome}</span>
-            <form action={logoutAction}>
-              <Button type="submit" variant="outline" size="sm">
-                Sair
-              </Button>
-            </form>
-          </div>
-        </div>
-      </header>
+      <AppHeader user={user} breadcrumbs={[{ label: "Calculadora" }]} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
         <CalculadoraForm
