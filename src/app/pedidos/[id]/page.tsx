@@ -21,6 +21,7 @@ import { formatBRL } from "@/lib/calculadoras";
 import { statusInfo, transicoesValidas, etapaInfo, etapaStatusInfo } from "../_status";
 import { StatusActions } from "./status-actions";
 import { EtapaActions } from "./etapa-actions";
+import { ArtePanel } from "./arte-panel";
 
 export const metadata = { title: "Pedido" };
 
@@ -47,6 +48,17 @@ export default async function PedidoDetalhePage({
         },
       },
       etapas: { orderBy: { ordem: "asc" } },
+      arteVersoes: {
+        orderBy: { versao: "desc" },
+        include: {
+          anexo: {
+            select: { nomeOriginal: true, caminho: true, mimeType: true, tamanhoBytes: true },
+          },
+        },
+      },
+      aprovacoes: {
+        orderBy: { criadaEm: "desc" },
+      },
     },
   });
   if (!p) notFound();
@@ -127,6 +139,28 @@ export default async function PedidoDetalhePage({
             </CardContent>
           </Card>
         </div>
+
+        {/* ARTE */}
+        <ArtePanel
+          pedidoId={p.id}
+          versoes={p.arteVersoes.map((v) => ({
+            id: v.id,
+            versao: v.versao,
+            notas: v.notas,
+            criadaEm: v.criadaEm,
+            anexo: v.anexo,
+          }))}
+          aprovacoes={p.aprovacoes.map((a) => ({
+            id: a.id,
+            token: a.token,
+            status: a.status,
+            expiraEm: a.expiraEm,
+            respondidoEm: a.respondidoEm,
+            comentario: a.comentario,
+            arteVersaoId: a.arteVersaoId,
+          }))}
+          podeEditar={podeEditar}
+        />
 
         {/* ETAPAS DE PRODUÇÃO */}
         <Card>
