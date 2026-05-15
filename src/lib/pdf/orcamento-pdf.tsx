@@ -40,13 +40,13 @@ const styles = StyleSheet.create({
     color: INK,
   },
 
-  // ===== HEADER COM LOGO + DADOS DA EMPRESA =====
+  // ===== HEADER COM LOGO + DADOS + NUMERO À DIREITA =====
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 32,
-    paddingBottom: 20,
+    marginBottom: 28,
+    paddingBottom: 18,
     borderBottomWidth: 1,
     borderBottomColor: RULE,
   },
@@ -65,6 +65,32 @@ const styles = StyleSheet.create({
     color: INK,
     marginBottom: 3,
   },
+  // Bloco direito: ORÇAMENTO · #0001 · data
+  numeroBloco: {
+    alignItems: "flex-end",
+    minWidth: 170,
+  },
+  numeroEyebrow: {
+    fontSize: 7,
+    color: MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 1.8,
+    fontFamily: "Helvetica-Bold",
+  },
+  numeroValor: {
+    fontSize: 22,
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: -0.8,
+    color: INK,
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  numeroMeta: {
+    fontSize: 8,
+    color: MUTED,
+    textAlign: "right",
+    lineHeight: 1.4,
+  },
   badge: {
     fontSize: 8,
     color: INK,
@@ -73,28 +99,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
   },
 
-  // ===== TÍTULO BLOCK =====
-  tituloBlock: {
-    marginBottom: 28,
-    paddingBottom: 18,
-    borderBottomWidth: 2,
-    borderBottomColor: INK,
-  },
-  eyebrow: {
-    fontSize: 7,
-    color: MUTED,
-    textTransform: "uppercase",
-    letterSpacing: 2,
-    marginBottom: 8,
-    fontFamily: "Helvetica-Bold",
-  },
-  titulo: {
-    fontSize: 38,
-    fontFamily: "Helvetica-Bold",
-    letterSpacing: -1,
-    lineHeight: 1,
-  },
-  meta: { color: MUTED, fontSize: 10, marginTop: 8 },
+  // (bloco de título grande foi removido — número agora vive no topRow direita)
 
   // ===== BLOCOS (cliente / condições) =====
   duasColunas: {
@@ -301,17 +306,16 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
       creator={data.empresa.nome}
     >
       <Page size="A4" style={styles.page}>
-        {/* TOPO — LOGO + DADOS DA EMPRESA */}
+        {/* TOPO — LOGO + DADOS À ESQUERDA / Nº DO ORÇAMENTO À DIREITA */}
         <View style={styles.topRow} fixed>
+          {/* COLUNA ESQUERDA — marca + dados da empresa */}
           <View>
             {data.empresa.logoDataUrl ? (
-              // Logo personalizada (imagem enviada pelo usuário)
               <Image
                 src={data.empresa.logoDataUrl}
-                style={{ maxHeight: 50, maxWidth: 220, marginBottom: 4, objectFit: "contain" }}
+                style={{ maxHeight: 25, maxWidth: 110, marginBottom: 4, objectFit: "contain" }}
               />
             ) : (
-              // Fallback: marca PrintLab desenhada
               <PrintLabMarkPdf />
             )}
             <View style={styles.empresaInfo}>
@@ -328,17 +332,20 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
               </Text>
             </View>
           </View>
-          <Text style={styles.badge}>· Orçamento ·</Text>
-        </View>
 
-        {/* TÍTULO BLOCK */}
-        <View style={styles.tituloBlock}>
-          <Text style={styles.eyebrow}>Nº do orçamento</Text>
-          <Text style={styles.titulo}>#{String(data.numero).padStart(4, "0")}</Text>
-          <Text style={styles.meta}>
-            Emitido em {format(data.criadoEm, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-            {"  ·  "}vendedor {data.vendedor.nome}
-          </Text>
+          {/* COLUNA DIREITA — número do orçamento compacto */}
+          <View style={styles.numeroBloco}>
+            <Text style={styles.numeroEyebrow}>Orçamento Nº</Text>
+            <Text style={styles.numeroValor}>
+              #{String(data.numero).padStart(4, "0")}
+            </Text>
+            <Text style={styles.numeroMeta}>
+              Emitido em {format(data.criadoEm, "dd/MM/yyyy", { locale: ptBR })}
+            </Text>
+            <Text style={styles.numeroMeta}>
+              Vendedor: {data.vendedor.nome}
+            </Text>
+          </View>
         </View>
 
         {/* CLIENTE + CONDIÇÕES */}
