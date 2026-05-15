@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { salvarEmpresa, type EmpresaActionResult } from "@/lib/actions/empresa";
+import { LogoUpload } from "./logo-upload";
 
 export type EmpresaInitial = {
   empresaNome: string;
@@ -17,6 +18,7 @@ export type EmpresaInitial = {
   empresaTelefone: string;
   empresaEmail: string | null;
   empresaEndereco: string | null;
+  empresaLogoPath: string | null;
   margemMinimaPct: number;
   prefixoOrcamento: string;
   prefixoPedido: string;
@@ -43,7 +45,11 @@ export function EmpresaForm({
   );
 
   return (
-    <form action={action} className="space-y-6">
+    <div className="space-y-6">
+      {/* LOGO — fora do form principal (upload tem seu próprio submit) */}
+      <LogoUpload current={initial.empresaLogoPath} podeEditar={podeEditar} />
+
+      <form action={action} className="space-y-6">
       {/* DADOS DA EMPRESA */}
       <Card>
         <CardHeader>
@@ -227,6 +233,7 @@ export function EmpresaForm({
           </Button>
         </div>
       )}
-    </form>
+      </form>
+    </div>
   );
 }

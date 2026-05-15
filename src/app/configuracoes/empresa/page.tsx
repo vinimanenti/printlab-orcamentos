@@ -21,6 +21,7 @@ export default async function EmpresaPage() {
     empresaTelefone: config?.empresaTelefone ?? "",
     empresaEmail: config?.empresaEmail ?? null,
     empresaEndereco: config?.empresaEndereco ?? null,
+    empresaLogoPath: config?.empresaLogoPath ?? null,
     margemMinimaPct: config ? Number(config.margemMinimaPct) : 20,
     prefixoOrcamento: config?.prefixoOrcamento ?? "ORC",
     prefixoPedido: config?.prefixoPedido ?? "PED",

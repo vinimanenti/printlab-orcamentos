@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/session";
@@ -77,6 +79,11 @@ export async function GET(
       telefone: config?.empresaTelefone ?? "",
       email: config?.empresaEmail,
       endereco: config?.empresaEndereco,
+      // Lê a logo do disco se existir, passa como data URL (react-pdf
+      // não aceita src com path relativo do public/)
+      logoDataUrl: config?.empresaLogoPath
+        ? await lerLogoComoDataUrl(config.empresaLogoPath).catch(() => null)
+        : null,
     },
   };
 
@@ -99,4 +106,20 @@ export async function GET(
       "Cache-Control": "no-store",
     },
   });
+}
+
+/**
+ * Lê a logo do disco e converte para data URL.
+ * react-pdf não aceita `/uploads/...` como src; precisa de data URL ou
+ * caminho absoluto do filesystem. Data URL é mais portável.
+ */
+async function lerLogoComoDataUrl(publicPath: string): Promise<string> {
+  const abs = path.join(process.cwd(), "public", publicPath);
+  const buf = await fs.readFile(abs);
+  const ext = path.extname(publicPath).toLowerCase().replace(".", "");
+  const mime =
+    ext === "png" ? "image/png" :
+    ext === "webp" ? "image/webp" :
+    "image/jpeg";
+  return `data:${mime};base64,${buf.toString("base64")}`;
 }

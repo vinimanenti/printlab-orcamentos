@@ -3,6 +3,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   Font,
   Svg,
@@ -249,6 +250,8 @@ export type OrcamentoPDFData = {
     telefone: string;
     email?: string | null;
     endereco?: string | null;
+    /** Data URL da logo personalizada (PNG/JPG/WebP) — opcional */
+    logoDataUrl?: string | null;
   };
 };
 
@@ -301,7 +304,16 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
         {/* TOPO — LOGO + DADOS DA EMPRESA */}
         <View style={styles.topRow} fixed>
           <View>
-            <PrintLabMarkPdf />
+            {data.empresa.logoDataUrl ? (
+              // Logo personalizada (imagem enviada pelo usuário)
+              <Image
+                src={data.empresa.logoDataUrl}
+                style={{ maxHeight: 50, maxWidth: 220, marginBottom: 4, objectFit: "contain" }}
+              />
+            ) : (
+              // Fallback: marca PrintLab desenhada
+              <PrintLabMarkPdf />
+            )}
             <View style={styles.empresaInfo}>
               <Text style={styles.empresaNome}>{data.empresa.nome}</Text>
               {data.empresa.cnpj && (
