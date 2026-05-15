@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PERFIL_LABELS } from "@/lib/actions/usuarios";
+import { PERFIL_LABELS } from "@/lib/perfil-info";
 import { UsuarioDialog } from "./usuario-dialog";
 import { ResetSenhaDialog } from "./reset-senha-dialog";
 import { AtivoToggleUsuario } from "./ativo-toggle-usuario";

@@ -3,7 +3,7 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import { Prisma, type Perfil } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/session";
 
@@ -251,17 +251,3 @@ export async function gerarSenhaTemporaria(): Promise<string> {
   s += syms[Math.floor(Math.random() * syms.length)];
   return s;
 }
-
-export const PERFIL_LABELS: Record<Perfil, string> = {
-  ADM: "Administrador",
-  VEN: "Vendedor",
-  PRO: "Produção",
-  FIN: "Financeiro",
-};
-
-export const PERFIL_DESCRICOES: Record<Perfil, string> = {
-  ADM: "Acesso total: configurações, usuários, preços, todos os dados.",
-  VEN: "Cria clientes, orçamentos e pedidos. Vê os pedidos que ele mesmo lançou.",
-  PRO: "Visualiza pedidos e atualiza etapas de produção. Não vê valores.",
-  FIN: "Visualiza tudo + registra pagamentos. Não edita orçamentos.",
-};

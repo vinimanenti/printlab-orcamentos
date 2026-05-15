@@ -26,10 +26,9 @@ import {
 import {
   criarUsuario,
   editarUsuario,
-  PERFIL_LABELS,
-  PERFIL_DESCRICOES,
   type UsuarioActionResult,
 } from "@/lib/actions/usuarios";
+import { PERFIL_LABELS, PERFIL_DESCRICOES } from "@/lib/perfil-info";
 
 export type UsuarioData = {
   id: string;
