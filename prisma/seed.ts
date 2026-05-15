@@ -43,13 +43,21 @@ async function main() {
   });
 
   console.log("→ Configuração da empresa");
+  const empresaDados = {
+    empresaNome: process.env.EMPRESA_NOME ?? "PRINTLAB LTDA",
+    empresaCnpj: process.env.EMPRESA_CNPJ ?? "42.230.263/0001-37",
+    empresaTelefone: process.env.EMPRESA_TELEFONE ?? "(14) 99153-5620",
+    empresaEmail: process.env.EMPRESA_EMAIL ?? null,
+    empresaEndereco:
+      process.env.EMPRESA_ENDERECO ??
+      "Rua Getúlio Vargas 461 - José Ribeiro - Garça - SP - 17404-524",
+  };
   await prisma.configuracaoSistema.upsert({
     where: { id: "singleton" },
-    update: {},
+    update: empresaDados,
     create: {
       id: "singleton",
-      empresaNome: process.env.EMPRESA_NOME ?? "PrintLab",
-      empresaTelefone: process.env.EMPRESA_TELEFONE ?? "(00) 00000-0000",
+      ...empresaDados,
       margemMinimaPct: 20,
       prefixoOrcamento: "ORC",
       prefixoPedido: "PED",

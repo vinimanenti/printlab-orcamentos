@@ -5,6 +5,9 @@ import {
   View,
   StyleSheet,
   Font,
+  Svg,
+  Circle,
+  Text as SvgText,
 } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -36,25 +39,30 @@ const styles = StyleSheet.create({
     color: INK,
   },
 
-  // ===== HEADER COM TIRA CMYK =====
-  marcaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  marcaTexto: { fontSize: 18, fontFamily: "Helvetica-Bold", letterSpacing: -0.5 },
-  cmykStrip: {
-    flexDirection: "row",
-    gap: 2,
-    marginHorizontal: 4,
-  },
-  cmykDot: { width: 6, height: 6, borderRadius: 3 },
-
+  // ===== HEADER COM LOGO + DADOS DA EMPRESA =====
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 28,
+    marginBottom: 32,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: RULE,
+  },
+  empresaInfo: {
+    marginTop: 6,
+  },
+  empresaLinha: {
+    fontSize: 8,
+    color: MUTED,
+    letterSpacing: 0.3,
+    lineHeight: 1.5,
+  },
+  empresaNome: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: INK,
+    marginBottom: 3,
   },
   badge: {
     fontSize: 8,
@@ -237,24 +245,46 @@ export type OrcamentoPDFData = {
   }>;
   empresa: {
     nome: string;
+    cnpj?: string | null;
     telefone: string;
     email?: string | null;
     endereco?: string | null;
   };
 };
 
+/**
+ * Logo PrintLab desenhada com primitivas SVG do react-pdf.
+ *
+ * Layout horizontal: "Print" + 4 círculos (M, Y, C, K) + "Lab"
+ * Reproduz a marca oficial em 200pt × 36pt.
+ *
+ * Os pontos têm contorno branco fino simulando o aspecto da arte original.
+ */
+const SVG_TEXT_STYLE = {
+  fontFamily: "Helvetica-Bold",
+  fontSize: 28,
+  letterSpacing: -1,
+};
+
 function PrintLabMarkPdf() {
   return (
-    <View style={styles.marcaRow}>
-      <Text style={styles.marcaTexto}>Print</Text>
-      <View style={styles.cmykStrip}>
-        <View style={[styles.cmykDot, { backgroundColor: MAGENTA }]} />
-        <View style={[styles.cmykDot, { backgroundColor: YELLOW }]} />
-        <View style={[styles.cmykDot, { backgroundColor: CYAN }]} />
-        <View style={[styles.cmykDot, { backgroundColor: INK }]} />
-      </View>
-      <Text style={styles.marcaTexto}>Lab</Text>
-    </View>
+    <Svg width={200} height={36} viewBox="0 0 200 36">
+      {/* "Print" */}
+      <SvgText x={0} y={26} fill={INK} style={SVG_TEXT_STYLE}>
+        Print
+      </SvgText>
+
+      {/* 4 círculos CMYK na ordem M Y C K da logo oficial */}
+      <Circle cx={75} cy={18} r={6} fill={MAGENTA} stroke="#ffffff" strokeWidth={1} />
+      <Circle cx={89} cy={18} r={6} fill={YELLOW} stroke="#ffffff" strokeWidth={1} />
+      <Circle cx={103} cy={18} r={6} fill={CYAN} stroke="#ffffff" strokeWidth={1} />
+      <Circle cx={117} cy={18} r={6} fill={INK} stroke="#ffffff" strokeWidth={1} />
+
+      {/* "Lab" */}
+      <SvgText x={128} y={26} fill={INK} style={SVG_TEXT_STYLE}>
+        Lab
+      </SvgText>
+    </Svg>
   );
 }
 
@@ -268,17 +298,23 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
       creator={data.empresa.nome}
     >
       <Page size="A4" style={styles.page}>
-        {/* TOPO */}
+        {/* TOPO — LOGO + DADOS DA EMPRESA */}
         <View style={styles.topRow} fixed>
           <View>
             <PrintLabMarkPdf />
-            <Text style={{ fontSize: 8, color: MUTED, marginTop: 4, letterSpacing: 1 }}>
-              {data.empresa.telefone}
-              {data.empresa.email ? `  ·  ${data.empresa.email}` : ""}
-            </Text>
-            {data.empresa.endereco ? (
-              <Text style={{ fontSize: 8, color: MUTED }}>{data.empresa.endereco}</Text>
-            ) : null}
+            <View style={styles.empresaInfo}>
+              <Text style={styles.empresaNome}>{data.empresa.nome}</Text>
+              {data.empresa.cnpj && (
+                <Text style={styles.empresaLinha}>CNPJ {data.empresa.cnpj}</Text>
+              )}
+              {data.empresa.endereco && (
+                <Text style={styles.empresaLinha}>{data.empresa.endereco}</Text>
+              )}
+              <Text style={styles.empresaLinha}>
+                {data.empresa.telefone}
+                {data.empresa.email ? `  ·  ${data.empresa.email}` : ""}
+              </Text>
+            </View>
           </View>
           <Text style={styles.badge}>· Orçamento ·</Text>
         </View>

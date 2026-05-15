@@ -73,6 +73,7 @@ export async function GET(
     })),
     empresa: {
       nome: config?.empresaNome ?? "PrintLab",
+      cnpj: config?.empresaCnpj,
       telefone: config?.empresaTelefone ?? "",
       email: config?.empresaEmail,
       endereco: config?.empresaEndereco,
