@@ -18,13 +18,13 @@ import { formatBRL } from "@/lib/calculadoras";
  * server-side com @react-pdf/renderer (sem Chrome headless).
  */
 
-// Paleta CMYK em RGB (react-pdf não entende oklch)
-const CYAN = "#00a4d6";
-const MAGENTA = "#d9008a";
-const YELLOW = "#e8c300";
-const INK = "#111111";
-const MUTED = "#666666";
-const RULE = "#dddddd";
+// Cores oficiais da marca PrintLab
+const CYAN = "#00AFEF";
+const MAGENTA = "#EC268F";
+const YELLOW = "#FFF212";
+const INK = "#201E1E";
+const MUTED = "#6b6b69";
+const RULE = "#e5e5e3";
 
 const styles = StyleSheet.create({
   page: {
@@ -42,13 +42,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
-  marcaTexto: { fontSize: 16, fontFamily: "Helvetica-Bold" },
+  marcaTexto: { fontSize: 18, fontFamily: "Helvetica-Bold", letterSpacing: -0.5 },
   cmykStrip: {
     flexDirection: "row",
-    gap: 1,
-    marginHorizontal: 3,
+    gap: 2,
+    marginHorizontal: 4,
   },
-  cmykSquare: { width: 5, height: 5 },
+  cmykDot: { width: 6, height: 6, borderRadius: 3 },
 
   topRow: {
     flexDirection: "row",
@@ -248,10 +248,10 @@ function PrintLabMarkPdf() {
     <View style={styles.marcaRow}>
       <Text style={styles.marcaTexto}>Print</Text>
       <View style={styles.cmykStrip}>
-        <View style={[styles.cmykSquare, { backgroundColor: CYAN }]} />
-        <View style={[styles.cmykSquare, { backgroundColor: MAGENTA }]} />
-        <View style={[styles.cmykSquare, { backgroundColor: YELLOW }]} />
-        <View style={[styles.cmykSquare, { backgroundColor: INK }]} />
+        <View style={[styles.cmykDot, { backgroundColor: MAGENTA }]} />
+        <View style={[styles.cmykDot, { backgroundColor: YELLOW }]} />
+        <View style={[styles.cmykDot, { backgroundColor: CYAN }]} />
+        <View style={[styles.cmykDot, { backgroundColor: INK }]} />
       </View>
       <Text style={styles.marcaTexto}>Lab</Text>
     </View>

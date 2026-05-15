@@ -60,7 +60,7 @@ export default async function AprovacaoPage({
       {/* ============= TOPO MINIMAL ============= */}
       <header className="border-b border-border">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 h-14 flex items-center justify-between">
-          <PrintLabMark variant="wordmark" />
+          <PrintLabMark variant="wordmark" size="sm" />
           <span className="label-eyebrow text-muted-foreground">
             Aprovação de arte
           </span>

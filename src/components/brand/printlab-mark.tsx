@@ -1,81 +1,75 @@
 /**
- * Marca PrintLab — wordmark + tira CMYK.
+ * Marca PrintLab — logo oficial.
  *
  * Variantes:
- *   - `mark`: apenas a tira CMYK (4 quadrados) + Λ (para favicon, ícone)
- *   - `wordmark`: "PrintLab" composto, com a tira como ponto sobre o "i"
- *   - `full`: wordmark + descritor "ORÇAMENTOS" embaixo (para login/PDF)
+ *   - `mark`: tira CMYK (4 círculos: M Y C K) — ícone compacto
+ *   - `wordmark`: logo completa para fundo claro
+ *   - `wordmark-dark`: logo completa para fundo escuro (texto branco)
  *
- * Substituível: quando você me mandar o SVG oficial, troco o conteúdo
- * de `<Wordmark/>` sem mexer nas chamadas pelo sistema.
+ * Arquivos em public/brand/printlab-{light,dark}.svg.
+ *
+ * Cores oficiais:
+ *   Magenta #EC268F · Yellow #FFF212 · Cyan #00AFEF · Preto #201E1E
  */
 
-type Variant = "mark" | "wordmark" | "full";
+type Variant = "mark" | "wordmark" | "wordmark-dark";
+
+const SIZES = {
+  sm: 26,
+  md: 36,
+  lg: 50,
+  xl: 66,
+} as const;
 
 export function PrintLabMark({
   variant = "wordmark",
+  size = "md",
   className,
 }: {
   variant?: Variant;
+  size?: keyof typeof SIZES;
   className?: string;
 }) {
   if (variant === "mark") {
     return (
       <span
-        className={`inline-flex items-center gap-[2px] ${className ?? ""}`}
+        className={`inline-flex items-center gap-1 ${className ?? ""}`}
         aria-label="PrintLab"
       >
-        <span className="size-1.5 bg-cyan" />
-        <span className="size-1.5 bg-magenta" />
-        <span className="size-1.5 bg-yellow" />
-        <span className="size-1.5 bg-foreground" />
+        <span className="size-2 rounded-full bg-magenta" />
+        <span className="size-2 rounded-full bg-yellow" />
+        <span className="size-2 rounded-full bg-cyan" />
+        <span className="size-2 rounded-full bg-foreground" />
       </span>
     );
   }
 
-  if (variant === "full") {
-    return (
-      <div className={`inline-flex flex-col items-start ${className ?? ""}`}>
-        <Wordmark />
-        <span className="label-eyebrow mt-1 text-foreground/60">Orçamentos</span>
-      </div>
-    );
-  }
+  const src =
+    variant === "wordmark-dark" ? "/brand/printlab-dark.svg" : "/brand/printlab-light.svg";
 
-  return <Wordmark className={className} />;
-}
-
-function Wordmark({ className }: { className?: string }) {
   return (
-    <span
-      className={`inline-flex items-baseline font-semibold tracking-tight text-[1.05em] ${className ?? ""}`}
-      aria-label="PrintLab"
-    >
-      <span>Print</span>
-      <span className="inline-flex items-center gap-[2px] mx-[3px] translate-y-[-0.25em]">
-        <span className="size-1.5 bg-cyan rounded-[1px]" />
-        <span className="size-1.5 bg-magenta rounded-[1px]" />
-        <span className="size-1.5 bg-yellow rounded-[1px]" />
-        <span className="size-1.5 bg-foreground rounded-[1px]" />
-      </span>
-      <span>Lab</span>
-    </span>
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={src}
+      alt="PrintLab"
+      height={SIZES[size]}
+      style={{ height: `${SIZES[size]}px`, width: "auto" }}
+      className={className}
+    />
   );
 }
 
 /**
- * Versão SVG para uso em PDF (@react-pdf/renderer não entende JSX HTML).
- * Use `<PrintLabMarkPdf/>` dentro do react-pdf.
- *
- * Retorna SVG inline simples com a tira CMYK + texto.
+ * SVG inline para o PDF (@react-pdf/renderer).
+ * Réplica simplificada da logo oficial.
  */
 export const printlabMarkSvg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="20" viewBox="0 0 120 20">
-  <text x="0" y="15" font-family="Helvetica" font-size="14" font-weight="700" fill="#111">Print</text>
-  <rect x="38" y="2" width="4" height="4" fill="#00a4d6"/>
-  <rect x="43" y="2" width="4" height="4" fill="#d9008a"/>
-  <rect x="48" y="2" width="4" height="4" fill="#e8c300"/>
-  <rect x="53" y="2" width="4" height="4" fill="#111"/>
-  <text x="60" y="15" font-family="Helvetica" font-size="14" font-weight="700" fill="#111">Lab</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="22" viewBox="0 0 140 22">
+  <text x="0" y="17" font-family="Helvetica" font-size="18" font-weight="700" fill="#201E1E" letter-spacing="-0.5">Print</text>
+  <circle cx="50" cy="11" r="3.5" fill="#EC268F"/>
+  <circle cx="59" cy="11" r="3.5" fill="#FFF212"/>
+  <circle cx="68" cy="11" r="3.5" fill="#00AFEF"/>
+  <circle cx="77" cy="11" r="3.5" fill="#201E1E"/>
+  <text x="84" y="17" font-family="Helvetica" font-size="18" font-weight="700" fill="#201E1E" letter-spacing="-0.5">Lab</text>
 </svg>
 `;

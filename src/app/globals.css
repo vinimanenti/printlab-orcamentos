@@ -8,24 +8,22 @@
    PrintLab Orçamentos — Editorial CMYK design system
    ============================================================
 
-   Paleta inspirada nas tintas de impressão CMYK:
-     • Tinta (ink)   — quase-preto rico, não puro
-     • Papel (paper) — branco quente
-     • Polpa (pulp)  — cinza suave de fundo
-     • Cyan          — primário (ações, links, identidade)
-     • Magenta       — destrutivo / alerta forte
-     • Yellow        — atenção / warning
+   Cores oficiais da marca PrintLab (CMYK process em hex):
+     • Magenta #EC268F · Yellow #FFF212 · Cyan #00AFEF · Preto #201E1E
 
-   A intenção é editorial/specimen tipográfico: cor usada com parcimônia,
-   tipografia e espaçamento fazem o trabalho pesado. CMYK aparece em
-   momentos-chave (badge de orçamento aprovado, marca do logo, hover).
+   Tipografia:
+     • Manrope (sans-serif geométrica moderna) para tudo
+     • JetBrains Mono para números e códigos
+
+   Sem decoração: cor entra só onde importa (badge de aprovação, marca,
+   alertas). Tipografia e espaçamento fazem o trabalho principal.
    ============================================================ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -57,11 +55,10 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* CMYK process colors (utilitárias) */
+  /* Cores oficiais da marca como utilitárias */
   --color-cyan: var(--cyan);
   --color-magenta: var(--magenta);
   --color-yellow: var(--yellow);
-  --color-ink: var(--ink);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -72,115 +69,110 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* ============= LIGHT (papel) ============= */
+/* ============= LIGHT MODE (papel) ============= */
 :root {
-  /* Tinta e papel — quase preto, levemente quente; off-white */
-  --ink: oklch(0.18 0.005 80);
-  --paper: oklch(0.985 0.003 80);
+  /* Cores oficiais da marca (hex direto) */
+  --cyan: #00AFEF;
+  --magenta: #EC268F;
+  --yellow: #FFF212;
+  --ink: #201E1E;
+  --paper: #fbfbfa;
 
-  /* CMYK process — vivas mas sob controle */
-  --cyan: oklch(0.62 0.16 222);
-  --magenta: oklch(0.6 0.24 0);
-  --yellow: oklch(0.85 0.16 95);
-
-  /* Shadcn tokens mapeados */
   --background: var(--paper);
   --foreground: var(--ink);
 
-  --card: oklch(1 0 0);
+  --card: #ffffff;
   --card-foreground: var(--ink);
 
-  --popover: oklch(1 0 0);
+  --popover: #ffffff;
   --popover-foreground: var(--ink);
 
-  /* Botão primário = preto editorial; cyan vira ACENTO (links/highlight) */
   --primary: var(--ink);
-  --primary-foreground: var(--paper);
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.96 0.003 80);
+  --secondary: #f3f3f2;
   --secondary-foreground: var(--ink);
 
-  --muted: oklch(0.96 0.003 80);
-  --muted-foreground: oklch(0.48 0.005 80);
+  --muted: #f3f3f2;
+  --muted-foreground: #6b6b69;
 
   --accent: var(--cyan);
-  --accent-foreground: oklch(0.98 0 0);
+  --accent-foreground: #ffffff;
 
   --destructive: var(--magenta);
 
-  --border: oklch(0.9 0.003 80);
-  --input: oklch(0.92 0.003 80);
-  --ring: oklch(0.7 0.12 222);
+  --border: #e5e5e3;
+  --input: #ebebe9;
+  --ring: var(--cyan);
 
-  /* Charts: paleta CMYK + neutros */
+  /* Charts seguem a paleta CMYK */
   --chart-1: var(--cyan);
   --chart-2: var(--magenta);
-  --chart-3: var(--yellow);
-  --chart-4: oklch(0.45 0.005 80);
-  --chart-5: oklch(0.72 0.005 80);
+  --chart-3: #d4ac00; /* yellow escuro p/ leitura */
+  --chart-4: #6b6b69;
+  --chart-5: #b8b8b6;
 
   --radius: 0.5rem;
 
-  --sidebar: oklch(0.99 0.003 80);
+  --sidebar: #fdfdfc;
   --sidebar-foreground: var(--ink);
   --sidebar-primary: var(--ink);
-  --sidebar-primary-foreground: var(--paper);
-  --sidebar-accent: oklch(0.96 0.003 80);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f3f3f2;
   --sidebar-accent-foreground: var(--ink);
-  --sidebar-border: oklch(0.9 0.003 80);
-  --sidebar-ring: oklch(0.7 0.12 222);
+  --sidebar-border: #e5e5e3;
+  --sidebar-ring: var(--cyan);
 }
 
-/* ============= DARK (tinta) ============= */
+/* ============= DARK MODE (tinta) ============= */
 .dark {
-  --ink: oklch(0.97 0.005 80);
-  --paper: oklch(0.13 0.005 80);
-
-  --cyan: oklch(0.72 0.16 222);
-  --magenta: oklch(0.68 0.24 0);
-  --yellow: oklch(0.88 0.16 95);
+  --cyan: #33C0F4;
+  --magenta: #F148A2;
+  --yellow: #FFF53F;
+  --ink: #fbfbfa;
+  --paper: #1a1819;
 
   --background: var(--paper);
   --foreground: var(--ink);
 
-  --card: oklch(0.18 0.005 80);
+  --card: #211f20;
   --card-foreground: var(--ink);
 
-  --popover: oklch(0.18 0.005 80);
+  --popover: #211f20;
   --popover-foreground: var(--ink);
 
   --primary: var(--ink);
   --primary-foreground: var(--paper);
 
-  --secondary: oklch(0.22 0.005 80);
+  --secondary: #2a2728;
   --secondary-foreground: var(--ink);
 
-  --muted: oklch(0.22 0.005 80);
-  --muted-foreground: oklch(0.7 0.005 80);
+  --muted: #2a2728;
+  --muted-foreground: #a5a3a3;
 
   --accent: var(--cyan);
-  --accent-foreground: oklch(0.13 0.005 80);
+  --accent-foreground: var(--paper);
 
   --destructive: var(--magenta);
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.16 222);
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: var(--cyan);
 
   --chart-1: var(--cyan);
   --chart-2: var(--magenta);
   --chart-3: var(--yellow);
-  --chart-4: oklch(0.6 0.005 80);
-  --chart-5: oklch(0.35 0.005 80);
+  --chart-4: #a5a3a3;
+  --chart-5: #5a5757;
 
-  --sidebar: oklch(0.16 0.005 80);
+  --sidebar: #211f20;
   --sidebar-foreground: var(--ink);
   --sidebar-primary: var(--ink);
   --sidebar-primary-foreground: var(--paper);
-  --sidebar-accent: oklch(0.22 0.005 80);
+  --sidebar-accent: #2a2728;
   --sidebar-accent-foreground: var(--ink);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.72 0.16 222);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--cyan);
 }
 
 @layer base {
@@ -189,68 +181,57 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "ss01", "cv11";
+    font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-sans), system-ui, sans-serif;
   }
 
-  /* Numerais sempre tabulares e proporcionais para alinhamento em colunas */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Hierarquia editorial */
+  /* Hierarquia tipográfica Manrope */
   h1,
   h2,
-  h3 {
-    @apply font-semibold tracking-tight;
+  h3,
+  h4 {
+    @apply font-bold tracking-tight;
     letter-spacing: -0.02em;
   }
   h1 {
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
   }
 }
 
 /* ============= Utilitários PrintLab ============= */
 
 @layer utilities {
-  /* Rótulo editorial em caixa alta, espacado, pequeno */
+  /* Rótulo editorial em caixa alta */
   .label-eyebrow {
-    @apply text-[10px] uppercase tracking-[0.18em] font-semibold text-muted-foreground;
+    @apply text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground;
   }
 
-  /* Display tipográfico: títulos grandes, condensados */
+  /* Display tipográfico Manrope — sem-serifa, geométrico, moderno */
   .display-2xl {
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: clamp(2.75rem, 5.5vw, 4.5rem);
     line-height: 0.95;
-    letter-spacing: -0.04em;
-    font-weight: 700;
+    letter-spacing: -0.045em;
+    font-weight: 800;
   }
   .display-xl {
     font-size: clamp(2rem, 4vw, 3rem);
     line-height: 1;
-    letter-spacing: -0.035em;
-    font-weight: 600;
+    letter-spacing: -0.04em;
+    font-weight: 700;
   }
   .display-lg {
     font-size: clamp(1.5rem, 3vw, 2.25rem);
     line-height: 1.05;
     letter-spacing: -0.03em;
-    font-weight: 600;
+    font-weight: 700;
   }
 
-  /* Crop marks decorativos para cantos editoriais */
-  .crop-marks {
-    background-image:
-      linear-gradient(to right, currentColor 8px, transparent 8px),
-      linear-gradient(to bottom, currentColor 8px, transparent 8px);
-    background-position: 0 0, 0 0;
-    background-size: 100% 1px, 1px 100%;
-    background-repeat: no-repeat;
-  }
-
-  /* Régua editorial */
   .rule-thick {
     @apply border-t-2 border-foreground;
   }
@@ -258,23 +239,14 @@
     @apply border-t border-border;
   }
 
-  /* Process color text helpers */
-  .text-cyan {
-    color: var(--cyan);
-  }
-  .text-magenta {
-    color: var(--magenta);
-  }
-  .text-yellow {
-    color: var(--yellow);
-  }
-  .bg-cyan {
-    background-color: var(--cyan);
-  }
-  .bg-magenta {
-    background-color: var(--magenta);
-  }
-  .bg-yellow {
-    background-color: var(--yellow);
-  }
+  /* Cores oficiais da marca como classes */
+  .text-cyan { color: var(--cyan); }
+  .text-magenta { color: var(--magenta); }
+  .text-yellow { color: var(--yellow); }
+  .bg-cyan { background-color: var(--cyan); }
+  .bg-magenta { background-color: var(--magenta); }
+  .bg-yellow { background-color: var(--yellow); }
+  .border-cyan { border-color: var(--cyan); }
+  .border-magenta { border-color: var(--magenta); }
+  .border-yellow { border-color: var(--yellow); }
 }
