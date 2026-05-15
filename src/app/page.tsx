@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { verifySession } from "@/lib/session";
+import { verifySession, vendedorFilter } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,23 +25,34 @@ export default async function DashboardPage() {
   const agora = new Date();
   const inicioDia = startOfDay(agora);
   const inicioMes = startOfMonth(agora);
+  const filtroVendedor = vendedorFilter(user);
+  const isVendedor = user.perfil === "VEN";
 
-  // KPIs em paralelo
+  // KPIs em paralelo — VEN só conta dele mesmo, ADM/FIN/PRO contam tudo
   const [orcDia, orcMes, pedidosAbertos, pedidosAtrasados, vendidoMes] =
     await Promise.all([
-      prisma.orcamento.count({ where: { criadoEm: { gte: inicioDia } } }),
-      prisma.orcamento.count({ where: { criadoEm: { gte: inicioMes } } }),
+      prisma.orcamento.count({
+        where: { ...filtroVendedor, criadoEm: { gte: inicioDia } },
+      }),
+      prisma.orcamento.count({
+        where: { ...filtroVendedor, criadoEm: { gte: inicioMes } },
+      }),
       prisma.pedido.count({
-        where: { status: { notIn: ["ENTREGUE", "CANCELADO"] } },
+        where: { ...filtroVendedor, status: { notIn: ["ENTREGUE", "CANCELADO"] } },
       }),
       prisma.pedido.count({
         where: {
+          ...filtroVendedor,
           prazoEntrega: { lt: agora },
           status: { notIn: ["ENTREGUE", "CANCELADO"] },
         },
       }),
       prisma.pedido.aggregate({
-        where: { criadoEm: { gte: inicioMes }, status: { not: "CANCELADO" } },
+        where: {
+          ...filtroVendedor,
+          criadoEm: { gte: inicioMes },
+          status: { not: "CANCELADO" },
+        },
         _sum: { total: true },
       }),
     ]);
@@ -70,21 +81,36 @@ export default async function DashboardPage() {
         {/* ============= KPIs INDICADORES ============= */}
         <section>
           <div className="flex items-baseline justify-between mb-3">
-            <h2 className="label-eyebrow">Indicadores</h2>
+            <h2 className="label-eyebrow">
+              {isVendedor ? "Meus indicadores" : "Indicadores da equipe"}
+            </h2>
             <span className="label-eyebrow text-muted-foreground">
               hoje · {format(agora, "HH:mm")}
             </span>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-5 divide-x divide-border rule-thick rounded-md border border-foreground overflow-hidden">
-            <Kpi label="Orçamentos hoje" value={String(orcDia)} />
-            <Kpi label="Orçamentos no mês" value={String(orcMes)} />
-            <Kpi label="Pedidos em aberto" value={String(pedidosAbertos)} />
             <Kpi
-              label="Atrasados"
+              label={isVendedor ? "Meus orç. hoje" : "Orçamentos hoje"}
+              value={String(orcDia)}
+            />
+            <Kpi
+              label={isVendedor ? "Meus orç. no mês" : "Orçamentos no mês"}
+              value={String(orcMes)}
+            />
+            <Kpi
+              label={isVendedor ? "Meus pedidos abertos" : "Pedidos em aberto"}
+              value={String(pedidosAbertos)}
+            />
+            <Kpi
+              label={isVendedor ? "Meus atrasados" : "Atrasados"}
               value={String(pedidosAtrasados)}
               accent={pedidosAtrasados > 0 ? "magenta" : undefined}
             />
-            <Kpi label="Vendido no mês" value={formatBRL(vendidoMesValor)} mono />
+            <Kpi
+              label={isVendedor ? "Vendi no mês" : "Vendido no mês"}
+              value={formatBRL(vendidoMesValor)}
+              mono
+            />
           </div>
         </section>
 

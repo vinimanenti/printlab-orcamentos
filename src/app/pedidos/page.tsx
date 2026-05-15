@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Box } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { verifySession } from "@/lib/session";
+import { verifySession, vendedorFilter } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -34,11 +34,14 @@ export default async function PedidosPage({
 }) {
   const user = await verifySession();
   const { status = "abertos", q = "" } = await searchParams;
+  const isVendedor = user.perfil === "VEN";
 
   const statusKnown = ordemStatusPedido.find((s) => s === status);
 
   const where = {
     AND: [
+      // Vendedor só vê os próprios pedidos
+      vendedorFilter(user),
       status === "abertos"
         ? { status: { notIn: ["ENTREGUE" as const, "CANCELADO" as const] } }
         : statusKnown
@@ -72,11 +75,14 @@ export default async function PedidosPage({
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-5">
         <PageHeader
-          eyebrow="Produção"
-          title="Pedidos"
+          eyebrow={isVendedor ? "Meus pedidos" : "Produção"}
+          title={isVendedor ? "Meus pedidos" : "Pedidos"}
           description={
             <>
               {pedidos.length} {pedidos.length === 1 ? "encontrado" : "encontrados"}.
+              {isVendedor && (
+                <span className="text-cyan ml-2">· filtrando pelos seus</span>
+              )}
             </>
           }
           actions={

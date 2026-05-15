@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { verifySession } from "@/lib/session";
+import { verifySession, vendedorFilter } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { Card } from "@/components/ui/card";
@@ -25,7 +25,11 @@ export default async function ProducaoPage() {
   const user = await verifySession();
 
   const pedidos = await prisma.pedido.findMany({
-    where: { status: { in: colunas as unknown as Array<(typeof colunas)[number]> } },
+    where: {
+      // Vendedor só vê os próprios pedidos no kanban
+      ...vendedorFilter(user),
+      status: { in: colunas as unknown as Array<(typeof colunas)[number]> },
+    },
     include: {
       cliente: { select: { nome: true } },
       etapas: { select: { status: true } },

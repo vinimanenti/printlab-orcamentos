@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Plus, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { verifySession } from "@/lib/session";
+import { verifySession, vendedorFilter } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -38,9 +38,12 @@ export default async function OrcamentosPage({
   const user = await verifySession();
   const { status = "todos", q = "" } = await searchParams;
   const podeEditar = user.perfil === "ADM" || user.perfil === "VEN";
+  const isVendedor = user.perfil === "VEN";
 
   const where = {
     AND: [
+      // Vendedor só vê os próprios orçamentos
+      vendedorFilter(user),
       status !== "todos" && statusFiltros.find((f) => f.key === status)
         ? { status: status as Exclude<(typeof statusFiltros)[number]["key"], "todos"> }
         : {},
@@ -71,11 +74,14 @@ export default async function OrcamentosPage({
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-5">
         <PageHeader
-          eyebrow="Comercial"
-          title="Orçamentos"
+          eyebrow={isVendedor ? "Meus orçamentos" : "Comercial"}
+          title={isVendedor ? "Meus orçamentos" : "Orçamentos"}
           description={
             <>
               {orcamentos.length} {orcamentos.length === 1 ? "encontrado" : "encontrados"}.
+              {isVendedor && (
+                <span className="text-cyan ml-2">· filtrando pelos seus</span>
+              )}
             </>
           }
           actions={

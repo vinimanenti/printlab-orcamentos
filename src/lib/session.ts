@@ -66,3 +66,34 @@ export async function requirePerfil(...perfisAceitos: Perfil[]): Promise<Session
 export function isAdmin(user: { perfil: Perfil } | null | undefined): boolean {
   return user?.perfil === "ADM";
 }
+
+/**
+ * Helper de filtro por vendedor.
+ *
+ * Quando o usuário logado é VEN, retorna `{ vendedorId: user.id }` —
+ * limita queries pra só mostrar dados do próprio vendedor.
+ *
+ * Para qualquer outro perfil (ADM, FIN, PRO) retorna objeto vazio,
+ * que ao ser espalhado em `where: { ...filtro }` não restringe nada.
+ *
+ * Uso típico:
+ *   const where = { ...vendedorFilter(user), status: 'ENVIADO' };
+ *   await prisma.orcamento.findMany({ where });
+ */
+export function vendedorFilter(
+  user: SessionUser,
+): { vendedorId: string } | Record<string, never> {
+  return user.perfil === "VEN" ? { vendedorId: user.id } : {};
+}
+
+/**
+ * Indica se o usuário tem acesso a este pedido/orçamento.
+ * Use em páginas de detalhe pra dar 404 quando VEN tenta ver de outro.
+ */
+export function podeVer(
+  user: SessionUser,
+  entidade: { vendedorId: string },
+): boolean {
+  if (user.perfil === "VEN") return entidade.vendedorId === user.id;
+  return true; // ADM, FIN, PRO veem tudo
+}

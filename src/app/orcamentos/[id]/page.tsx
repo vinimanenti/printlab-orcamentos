@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { FileDown } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { verifySession } from "@/lib/session";
+import { verifySession, podeVer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -51,6 +51,8 @@ export default async function OrcamentoDetalhePage({
     },
   });
   if (!o) notFound();
+  // Vendedor só vê orçamentos próprios
+  if (!podeVer(user, o)) notFound();
   const pedidoExistente = o.pedido;
 
   const motivos = await prisma.motivoPerda.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } });

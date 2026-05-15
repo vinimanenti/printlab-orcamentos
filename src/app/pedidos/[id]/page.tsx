@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Box } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { verifySession } from "@/lib/session";
+import { verifySession, podeVer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -67,6 +67,8 @@ export default async function PedidoDetalhePage({
     },
   });
   if (!p) notFound();
+  // Vendedor só vê pedidos próprios
+  if (!podeVer(user, p)) notFound();
 
   // ChecklistArte não tem relação inversa no schema; query separada.
   const checklistRaw = await prisma.checklistArte.findUnique({
