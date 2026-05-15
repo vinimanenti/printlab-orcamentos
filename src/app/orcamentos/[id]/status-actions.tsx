@@ -81,8 +81,12 @@ export function StatusActions({
           </DialogHeader>
           <div className="space-y-2">
             <Label>Motivo</Label>
-            <Select value={motivoId} onValueChange={(v) => v && setMotivoId(v)}>
-              <SelectTrigger>
+            <Select
+              value={motivoId}
+              onValueChange={(v) => v && setMotivoId(v)}
+              items={Object.fromEntries(motivos.map((m) => [m.id, m.nome]))}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

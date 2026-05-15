@@ -192,6 +192,15 @@ export function NovoOrcamentoForm({
     });
   }
 
+  // Mapas {id → label} para o Base UI conseguir exibir o nome
+  // no SelectValue em vez do CUID cru.
+  const clientesItems = Object.fromEntries(
+    clientes.map((c) => [
+      c.id,
+      `${c.nome}${c.tipo === "PJ" ? " (empresa)" : ""} — ${c.telefone}`,
+    ]),
+  );
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       {/* ============= CENTRAL: ITENS ============= */}
@@ -202,8 +211,12 @@ export function NovoOrcamentoForm({
             <CardDescription>Quem está pedindo este orçamento.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Select value={clienteId} onValueChange={(v) => v && setClienteId(v)}>
-              <SelectTrigger>
+            <Select
+              value={clienteId}
+              onValueChange={(v) => v && setClienteId(v)}
+              items={clientesItems}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione um cliente" />
               </SelectTrigger>
               <SelectContent>
@@ -340,6 +353,18 @@ function ItemCard({
   onChange: (patch: Partial<ItemForm>) => void;
   onRemove?: () => void;
 }) {
+  // Mapas { value: label } para o Base UI exibir o nome no SelectValue
+  const materiaisItems = Object.fromEntries(
+    catalogo.materiais.map((m) => [m.id, m.nome]),
+  );
+  const impressoesItems = Object.fromEntries(
+    catalogo.impressoes.map((i) => [i.id, i.nome]),
+  );
+  const acabamentosItems = {
+    [NENHUM]: "Sem acabamento adicional",
+    ...Object.fromEntries(catalogo.acabamentos.map((a) => [a.id, a.nome])),
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -398,8 +423,12 @@ function ItemCard({
         <div className="grid sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Material</Label>
-            <Select value={item.materialId} onValueChange={(v) => v && onChange({ materialId: v })}>
-              <SelectTrigger>
+            <Select
+              value={item.materialId}
+              onValueChange={(v) => v && onChange({ materialId: v })}
+              items={materiaisItems}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -413,8 +442,12 @@ function ItemCard({
           </div>
           <div className="space-y-1.5">
             <Label>Impressão</Label>
-            <Select value={item.impressaoId} onValueChange={(v) => v && onChange({ impressaoId: v })}>
-              <SelectTrigger>
+            <Select
+              value={item.impressaoId}
+              onValueChange={(v) => v && onChange({ impressaoId: v })}
+              items={impressoesItems}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -434,8 +467,9 @@ function ItemCard({
             <Select
               value={item.acabamentoId}
               onValueChange={(v) => v && onChange({ acabamentoId: v })}
+              items={acabamentosItems}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

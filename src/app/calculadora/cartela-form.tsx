@@ -157,6 +157,13 @@ export function CartelaForm({
     window.open(url, "_blank", "noopener");
   }
 
+  const materiaisItems = Object.fromEntries(materiais.map((m) => [m.id, m.nome]));
+  const impressoesItems = Object.fromEntries(impressoes.map((i) => [i.id, i.nome]));
+  const acabamentosItems: Record<string, string> = {
+    [NENHUM]: "Sem acabamento adicional",
+    ...Object.fromEntries(acabamentos.map((a) => [a.id, a.nome])),
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
       <Card>
@@ -224,8 +231,12 @@ export function CartelaForm({
 
           <div className="space-y-1.5">
             <Label>Material</Label>
-            <Select value={materialId} onValueChange={(v) => v && setMaterialId(v)}>
-              <SelectTrigger>
+            <Select
+              value={materialId}
+              onValueChange={(v) => v && setMaterialId(v)}
+              items={materiaisItems}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -240,8 +251,12 @@ export function CartelaForm({
 
           <div className="space-y-1.5">
             <Label>Tipo de impressão</Label>
-            <Select value={impressaoId} onValueChange={(v) => v && setImpressaoId(v)}>
-              <SelectTrigger>
+            <Select
+              value={impressaoId}
+              onValueChange={(v) => v && setImpressaoId(v)}
+              items={impressoesItems}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -256,8 +271,12 @@ export function CartelaForm({
 
           <div className="space-y-1.5">
             <Label>Acabamento (opcional)</Label>
-            <Select value={acabamentoId} onValueChange={(v) => v && setAcabamentoId(v)}>
-              <SelectTrigger>
+            <Select
+              value={acabamentoId}
+              onValueChange={(v) => v && setAcabamentoId(v)}
+              items={acabamentosItems}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

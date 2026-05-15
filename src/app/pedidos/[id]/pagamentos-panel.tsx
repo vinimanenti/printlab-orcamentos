@@ -289,7 +289,11 @@ function PagamentoDialog({
               </div>
               <div className="space-y-1.5">
                 <Label>Método</Label>
-                <Select value={metodo} onValueChange={(v) => v && setMetodo(v as PagamentoMetodo)}>
+                <Select
+                  value={metodo}
+                  onValueChange={(v) => v && setMetodo(v as PagamentoMetodo)}
+                  items={Object.fromEntries(METODOS.map((m) => [m.value, m.label]))}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

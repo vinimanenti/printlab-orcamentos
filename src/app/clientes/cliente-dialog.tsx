@@ -85,7 +85,11 @@ export function ClienteDialog({
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label>Tipo</Label>
-                <Select value={tipo} onValueChange={(v) => v && setTipo(v as "PF" | "PJ")}>
+                <Select
+                  value={tipo}
+                  onValueChange={(v) => v && setTipo(v as "PF" | "PJ")}
+                  items={{ PF: "Pessoa física", PJ: "Empresa" }}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
