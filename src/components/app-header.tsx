@@ -52,10 +52,18 @@ export function AppHeader({
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <div className="hidden sm:flex flex-col items-end leading-none">
-            <span className="label-eyebrow">Operador</span>
-            <span className="text-sm font-semibold mt-0.5">{user.nome}</span>
-          </div>
+          <Link
+            href="/perfil"
+            className="hidden sm:flex flex-col items-end leading-none group"
+            title="Meu perfil"
+          >
+            <span className="label-eyebrow group-hover:text-foreground transition-colors">
+              Operador
+            </span>
+            <span className="text-sm font-semibold mt-0.5 group-hover:underline">
+              {user.nome}
+            </span>
+          </Link>
           <form action={logoutAction}>
             <Button type="submit" variant="outline" size="sm">
               Sair
