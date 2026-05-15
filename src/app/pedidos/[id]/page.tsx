@@ -22,6 +22,7 @@ import { statusInfo, transicoesValidas, etapaInfo, etapaStatusInfo } from "../_s
 import { StatusActions } from "./status-actions";
 import { EtapaActions } from "./etapa-actions";
 import { ArtePanel } from "./arte-panel";
+import { ChecklistPanel } from "./checklist-panel";
 
 export const metadata = { title: "Pedido" };
 
@@ -62,6 +63,29 @@ export default async function PedidoDetalhePage({
     },
   });
   if (!p) notFound();
+
+  // ChecklistArte não tem relação inversa no schema; query separada.
+  const checklistRaw = await prisma.checklistArte.findUnique({
+    where: { pedidoId: p.id },
+  });
+  const validadoPor = checklistRaw?.validadoPorId
+    ? await prisma.user.findUnique({
+        where: { id: checklistRaw.validadoPorId },
+        select: { nome: true },
+      })
+    : null;
+  const checklist = checklistRaw
+    ? {
+        sangriaOk: checklistRaw.sangriaOk,
+        resolucaoOk: checklistRaw.resolucaoOk,
+        coresCmykOk: checklistRaw.coresCmykOk,
+        fontesConvertidas: checklistRaw.fontesConvertidas,
+        tracadoCorteOk: checklistRaw.tracadoCorteOk,
+        observacoes: checklistRaw.observacoes,
+        validadoPorNome: validadoPor?.nome ?? null,
+        validadoEm: checklistRaw.validadoEm,
+      }
+    : null;
 
   const podeEditar = user.perfil === "ADM" || user.perfil === "VEN" || user.perfil === "PRO";
   const info = statusInfo[p.status];
@@ -161,6 +185,9 @@ export default async function PedidoDetalhePage({
           }))}
           podeEditar={podeEditar}
         />
+
+        {/* CHECKLIST DE ARTE */}
+        <ChecklistPanel pedidoId={p.id} initial={checklist} podeEditar={podeEditar} />
 
         {/* ETAPAS DE PRODUÇÃO */}
         <Card>
