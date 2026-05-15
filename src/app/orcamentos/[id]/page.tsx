@@ -21,6 +21,7 @@ import { formatBRL, formatM2 } from "@/lib/calculadoras";
 import { statusInfo, transicoesValidas } from "../_status";
 import { StatusActions } from "./status-actions";
 import { WhatsAppButton } from "./whatsapp-button";
+import { ConverterButton } from "./converter-button";
 
 export const metadata = { title: "Orçamento" };
 
@@ -46,9 +47,11 @@ export default async function OrcamentoDetalhePage({
           acabamento: { select: { nome: true } },
         },
       },
+      pedido: { select: { id: true, numero: true } },
     },
   });
   if (!o) notFound();
+  const pedidoExistente = o.pedido;
 
   const motivos = await prisma.motivoPerda.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } });
   const config = await prisma.configuracaoSistema.findUnique({ where: { id: "singleton" } });
@@ -112,6 +115,9 @@ export default async function OrcamentoDetalhePage({
             />
             {podeEditar && transicoes.length > 0 && (
               <StatusActions orcamentoId={o.id} atual={o.status} motivos={motivos} />
+            )}
+            {podeEditar && o.status === "APROVADO" && (
+              <ConverterButton orcamentoId={o.id} jaConvertido={!!pedidoExistente} pedidoId={pedidoExistente?.id} />
             )}
           </div>
         </div>

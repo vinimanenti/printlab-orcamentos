@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calculator, Settings, Users, FileText } from "lucide-react";
+import { Calculator, Settings, Users, FileText, Box, Kanban } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,12 +19,24 @@ export default async function DashboardPage() {
           <p className="text-muted-foreground">O que você quer fazer agora?</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <DashCard
             href="/orcamentos"
             icon={<FileText className="size-5" />}
             title="Orçamentos"
             desc="Lista, novo, status e WhatsApp."
+          />
+          <DashCard
+            href="/pedidos"
+            icon={<Box className="size-5" />}
+            title="Pedidos"
+            desc="Pedidos em produção, prazos e etapas."
+          />
+          <DashCard
+            href="/producao"
+            icon={<Kanban className="size-5" />}
+            title="Produção"
+            desc="Kanban visual por status de produção."
           />
           <DashCard
             href="/calculadora"
@@ -60,7 +72,10 @@ export default async function DashboardPage() {
               <li>✅ Configurações de materiais/impressões/acabamentos</li>
               <li>✅ Clientes (cadastro e busca)</li>
               <li>✅ Orçamentos persistidos com numeração</li>
-              <li>⏳ PDF do orçamento (em breve)</li>
+              <li>✅ PDF do orçamento</li>
+              <li>✅ Pedidos com snapshot e etapas de produção</li>
+              <li>✅ Kanban de produção</li>
+              <li>⏳ Calculadora por cartela / aprovação pública de arte (Fase 3)</li>
             </ul>
             <p className="mt-4 text-sm text-muted-foreground">
               Plano completo em{" "}
