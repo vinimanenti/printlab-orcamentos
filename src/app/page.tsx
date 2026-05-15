@@ -8,6 +8,7 @@ import {
   Kanban,
   TrendingUp,
   ArrowRight,
+  Wallet,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -162,15 +163,26 @@ export default async function DashboardPage() {
               desc="Cadastro e busca."
             />
             <NavCard
-              href="/relatorios"
+              href="/comissoes"
               n="07"
+              icon={<Wallet className="size-4" />}
+              title={isVendedor ? "Minhas comissões" : "Comissões"}
+              desc={
+                isVendedor
+                  ? "Suas comissões a receber e pagas."
+                  : "Comissões dos vendedores."
+              }
+            />
+            <NavCard
+              href="/relatorios"
+              n="08"
               icon={<TrendingUp className="size-4" />}
               title="Relatórios"
               desc="Faturamento, conversão, top materiais."
             />
             <NavCard
               href="/configuracoes"
-              n="08"
+              n="09"
               icon={<Settings className="size-4" />}
               title="Configurações"
               desc="Catálogo de preços e templates."

@@ -172,11 +172,44 @@ export async function mudarStatusPedido(
   if (parsed.data === "ENTREGUE") update.entregueEm = new Date();
 
   try {
-    await prisma.pedido.update({ where: { id }, data: update });
+    await prisma.$transaction(async (tx) => {
+      const pedido = await tx.pedido.update({
+        where: { id },
+        data: update,
+        include: {
+          vendedor: { select: { id: true, perfil: true, comissaoPct: true } },
+          comissao: true,
+        },
+      });
+
+      // Cria comissão automaticamente quando vira ENTREGUE (uma única vez)
+      if (
+        parsed.data === "ENTREGUE" &&
+        !pedido.comissao &&
+        pedido.vendedor.perfil === "VEN" &&
+        Number(pedido.vendedor.comissaoPct) > 0
+      ) {
+        const base = new Prisma.Decimal(pedido.total);
+        const pct = new Prisma.Decimal(pedido.vendedor.comissaoPct);
+        const valor = base.mul(pct).div(100);
+        await tx.comissao.create({
+          data: {
+            pedidoId: pedido.id,
+            vendedorId: pedido.vendedor.id,
+            baseValor: base,
+            comissaoPct: pct,
+            valorComissao: valor,
+            status: "PENDENTE",
+          },
+        });
+      }
+    });
     revalidatePath("/pedidos");
     revalidatePath(`/pedidos/${id}`);
+    revalidatePath("/comissoes");
     return { ok: true };
-  } catch {
+  } catch (e) {
+    console.error("Erro ao atualizar status:", e);
     return { error: "Erro ao atualizar status do pedido." };
   }
 }
