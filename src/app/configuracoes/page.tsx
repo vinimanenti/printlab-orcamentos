@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Layers, Printer, Sparkles, MessageCircle } from "lucide-react";
+import { Layers, Printer, Sparkles, MessageCircle, Building2 } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
@@ -25,10 +25,29 @@ export default async function ConfiguracoesPage() {
         <PageHeader
           eyebrow="Sistema"
           title="Configurações"
-          description="Ajuste o catálogo e os preços que alimentam a calculadora."
+          description="Ajuste os dados da sua empresa, o catálogo de preços e os textos automáticos."
         />
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* DESTAQUE: Dados da empresa */}
+        <Link href="/configuracoes/empresa" className="block group">
+          <Card className="border-foreground bg-foreground text-background transition-colors group-hover:border-cyan group-hover:bg-foreground/95">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="text-background/80">
+                  <Building2 className="size-6" />
+                </div>
+                <span className="label-eyebrow text-background/60">/00</span>
+              </div>
+              <CardTitle className="text-xl">Dados da empresa</CardTitle>
+              <CardDescription className="text-background/70">
+                Nome, CNPJ, endereço, telefone — aparecem no PDF e nas mensagens.
+                Regras padrão: margem mínima, validade do orçamento, prefixos.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ConfigCard
             href="/configuracoes/materiais"
             icon={<Layers className="size-5" />}
@@ -41,21 +60,21 @@ export default async function ConfiguracoesPage() {
             icon={<Printer className="size-5" />}
             title="Tipos de impressão"
             count={nImpressoes}
-            desc="HP Látex, Ecossolvente, UV, Sem impressão. Custo adicional por m²."
+            desc="HP Látex, Ecossolvente, UV. Custo adicional por m²."
           />
           <ConfigCard
             href="/configuracoes/acabamentos"
             icon={<Sparkles className="size-5" />}
             title="Acabamentos"
             count={nAcabamentos}
-            desc="Refile, corte contorno, laminação, resina. Cobrança por m² ou fixa."
+            desc="Refile, corte contorno, laminação, resina."
           />
           <ConfigCard
             href="/configuracoes/templates"
             icon={<MessageCircle className="size-5" />}
-            title="Templates de mensagem"
+            title="Templates"
             count={nTemplates}
-            desc="Textos prontos para WhatsApp. Edite sem mexer no código."
+            desc="Textos prontos para WhatsApp."
           />
         </div>
       </main>
