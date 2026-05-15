@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/session";
+import { lerArquivo } from "@/lib/storage";
 import { OrcamentoPDF, type OrcamentoPDFData } from "@/lib/pdf/orcamento-pdf";
 
 /**
@@ -109,17 +108,11 @@ export async function GET(
 }
 
 /**
- * Lê a logo do disco e converte para data URL.
+ * Lê a logo (do disco em dev, do R2 em prod) e converte para data URL.
  * react-pdf não aceita `/uploads/...` como src; precisa de data URL ou
  * caminho absoluto do filesystem. Data URL é mais portável.
  */
 async function lerLogoComoDataUrl(publicPath: string): Promise<string> {
-  const abs = path.join(process.cwd(), "public", publicPath);
-  const buf = await fs.readFile(abs);
-  const ext = path.extname(publicPath).toLowerCase().replace(".", "");
-  const mime =
-    ext === "png" ? "image/png" :
-    ext === "webp" ? "image/webp" :
-    "image/jpeg";
-  return `data:${mime};base64,${buf.toString("base64")}`;
+  const { buffer, mimeType } = await lerArquivo(publicPath);
+  return `data:${mimeType};base64,${buffer.toString("base64")}`;
 }

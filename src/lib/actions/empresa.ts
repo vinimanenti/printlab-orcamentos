@@ -1,13 +1,11 @@
 "use server";
 
-import { promises as fs } from "node:fs";
-import path from "node:path";
-import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/session";
+import { salvarArquivo, removerArquivo } from "@/lib/storage";
 
 export type EmpresaActionResult = { ok: true; logoPath?: string | null } | { error: string };
 
@@ -97,16 +95,15 @@ export async function salvarEmpresa(
 
 // ============= LOGO DA EMPRESA =============
 
-const LOGO_PASTA = "uploads/empresa";
-const TIPOS_PERMITIDOS = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp"]);
-const TAMANHO_MAX_MB = 2;
+const LOGO_MIMES = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp"]);
+const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 
 /**
  * Upload da logo da empresa. Substitui a logo desenhada (Print ●●●● Lab)
  * no PDF e em outros locais. Aceita PNG, JPG ou WebP até 2MB.
  *
- * Se já houver logo anterior, o arquivo antigo é apagado do disco
- * antes de gravar o novo.
+ * Em dev: grava em ./public/uploads/empresa/
+ * Em prod: sobe pro Cloudflare R2 (se configurado)
  */
 export async function salvarLogoEmpresa(formData: FormData): Promise<EmpresaActionResult> {
   const user = await verifySession();
@@ -117,49 +114,33 @@ export async function salvarLogoEmpresa(formData: FormData): Promise<EmpresaActi
   const file = formData.get("logo") as File | null;
   if (!file || file.size === 0) return { error: "Selecione um arquivo." };
 
-  if (!TIPOS_PERMITIDOS.has(file.type)) {
-    return { error: "Formato inválido. Use PNG, JPG ou WebP." };
-  }
-  if (file.size > TAMANHO_MAX_MB * 1024 * 1024) {
-    return { error: `Arquivo excede ${TAMANHO_MAX_MB}MB.` };
-  }
-
   try {
-    const pasta = path.join(process.cwd(), "public", LOGO_PASTA);
-    await fs.mkdir(pasta, { recursive: true });
-
     // Remove logo anterior se existir
     const configAtual = await prisma.configuracaoSistema.findUnique({
       where: { id: "singleton" },
       select: { empresaLogoPath: true },
     });
     if (configAtual?.empresaLogoPath) {
-      const antigaAbs = path.join(process.cwd(), "public", configAtual.empresaLogoPath);
-      await fs.unlink(antigaAbs).catch(() => {
-        // arquivo já não existe — segue
-      });
+      await removerArquivo(configAtual.empresaLogoPath);
     }
 
-    // Grava o novo
-    const ext = file.type === "image/png" ? ".png"
-      : file.type === "image/webp" ? ".webp"
-      : ".jpg";
-    const nomeArquivo = `logo-${randomUUID().slice(0, 8)}${ext}`;
-    const destino = path.join(pasta, nomeArquivo);
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(destino, buffer);
+    const salvo = await salvarArquivo("empresa", file, {
+      maxBytes: LOGO_MAX_BYTES,
+      mimesPermitidos: LOGO_MIMES,
+    });
 
-    const publicPath = `/${LOGO_PASTA}/${nomeArquivo}`;
     await prisma.configuracaoSistema.update({
       where: { id: "singleton" },
-      data: { empresaLogoPath: publicPath },
+      data: { empresaLogoPath: salvo.publicPath },
     });
 
     revalidatePath("/configuracoes/empresa");
-    return { ok: true, logoPath: publicPath };
+    return { ok: true, logoPath: salvo.publicPath };
   } catch (e) {
     console.error("Erro ao salvar logo:", e);
-    return { error: "Erro ao salvar arquivo." };
+    return {
+      error: e instanceof Error ? e.message : "Erro ao salvar arquivo.",
+    };
   }
 }
 
@@ -178,10 +159,7 @@ export async function removerLogoEmpresa(): Promise<EmpresaActionResult> {
     select: { empresaLogoPath: true },
   });
   if (configAtual?.empresaLogoPath) {
-    const abs = path.join(process.cwd(), "public", configAtual.empresaLogoPath);
-    await fs.unlink(abs).catch(() => {
-      // já deletado externamente — ok
-    });
+    await removerArquivo(configAtual.empresaLogoPath);
   }
 
   await prisma.configuracaoSistema.update({
