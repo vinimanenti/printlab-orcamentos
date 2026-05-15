@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calculator, Settings, Users, FileText, Box, Kanban } from "lucide-react";
+import { Calculator, Settings, Users, FileText, Box, Kanban, TrendingUp } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +49,12 @@ export default async function DashboardPage() {
             icon={<Users className="size-5" />}
             title="Clientes"
             desc="Cadastro, busca e edição."
+          />
+          <DashCard
+            href="/relatorios"
+            icon={<TrendingUp className="size-5" />}
+            title="Relatórios"
+            desc="Faturamento, conversão, top clientes e materiais."
           />
           <DashCard
             href="/configuracoes"
