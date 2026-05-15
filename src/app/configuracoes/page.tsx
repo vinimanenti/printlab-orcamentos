@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Layers, Printer, Sparkles } from "lucide-react";
+import { Layers, Printer, Sparkles, MessageCircle } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
@@ -9,10 +9,11 @@ export const metadata = { title: "Configurações" };
 
 export default async function ConfiguracoesPage() {
   const user = await verifySession();
-  const [nMateriais, nImpressoes, nAcabamentos] = await Promise.all([
+  const [nMateriais, nImpressoes, nAcabamentos, nTemplates] = await Promise.all([
     prisma.material.count(),
     prisma.tipoImpressao.count(),
     prisma.acabamento.count(),
+    prisma.mensagemTemplate.count(),
   ]);
 
   return (
@@ -48,6 +49,13 @@ export default async function ConfiguracoesPage() {
             title="Acabamentos"
             count={nAcabamentos}
             desc="Refile, corte contorno, laminação, resina. Cobrança por m² ou fixa."
+          />
+          <ConfigCard
+            href="/configuracoes/templates"
+            icon={<MessageCircle className="size-5" />}
+            title="Templates de mensagem"
+            count={nTemplates}
+            desc="Textos prontos para WhatsApp. Edite sem mexer no código."
           />
         </div>
       </main>
