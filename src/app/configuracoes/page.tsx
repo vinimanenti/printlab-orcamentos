@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Layers, Printer, Sparkles, MessageCircle, Building2 } from "lucide-react";
+import { Layers, Printer, Sparkles, MessageCircle, Building2, Users } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
@@ -10,11 +10,13 @@ export const metadata = { title: "Configurações" };
 
 export default async function ConfiguracoesPage() {
   const user = await verifySession();
-  const [nMateriais, nImpressoes, nAcabamentos, nTemplates] = await Promise.all([
+  const isAdmin = user.perfil === "ADM";
+  const [nMateriais, nImpressoes, nAcabamentos, nTemplates, nUsuarios] = await Promise.all([
     prisma.material.count(),
     prisma.tipoImpressao.count(),
     prisma.acabamento.count(),
     prisma.mensagemTemplate.count(),
+    prisma.user.count({ where: { ativo: true } }),
   ]);
 
   return (
@@ -76,6 +78,15 @@ export default async function ConfiguracoesPage() {
             count={nTemplates}
             desc="Textos prontos para WhatsApp."
           />
+          {isAdmin && (
+            <ConfigCard
+              href="/configuracoes/usuarios"
+              icon={<Users className="size-5" />}
+              title="Usuários"
+              count={nUsuarios}
+              desc="Equipe com acesso ao sistema e seus perfis."
+            />
+          )}
         </div>
       </main>
     </div>

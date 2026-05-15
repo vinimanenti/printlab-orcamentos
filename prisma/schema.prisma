@@ -115,6 +115,8 @@ model User {
   perfil       Perfil   @default(VEN)
   ativo        Boolean  @default(true)
   telefone     String?
+  /// Percentual de comissão sobre pedidos entregues (0-100). Usado no Sprint 3.
+  comissaoPct  Decimal  @default(0) @db.Decimal(5, 2)
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
@@ -123,6 +125,7 @@ model User {
   historicos HistoricoAlteracao[]
 
   @@index([ativo])
+  @@index([perfil, ativo])
 }
 
 // ============ CLIENTES ============
