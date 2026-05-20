@@ -123,7 +123,9 @@ export default async function ClientesPage({
                 clientes.map((c) => (
                   <TableRow key={c.id} className={!c.ativo ? "opacity-50" : ""}>
                     <TableCell className="font-medium">
-                      {c.nome}
+                      <Link href={`/clientes/${c.id}`} className="hover:underline">
+                        {c.nome}
+                      </Link>
                       {!c.ativo && (
                         <Badge variant="secondary" className="ml-2">
                           arquivado

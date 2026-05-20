@@ -48,6 +48,19 @@ export type CatalogoData = {
   validadeOrcamentoDias: number;
 };
 
+export type ClienteProdutoOption = {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  larguraCm: number | null;
+  alturaCm: number | null;
+  quantidadePadrao: number;
+  materialId: string | null;
+  impressaoId: string | null;
+  acabamentoId: string | null;
+  margemPct: number | null;
+};
+
 type ItemForm = {
   /** ID local apenas para chave do React */
   uid: string;
@@ -78,19 +91,57 @@ function novoItem(catalogo: CatalogoData): ItemForm {
 export function NovoOrcamentoForm({
   clientes,
   catalogo,
+  produtosPorCliente,
+  clientePreSelecionado,
 }: {
   clientes: ClienteOption[];
   catalogo: CatalogoData;
+  produtosPorCliente: Record<string, ClienteProdutoOption[]>;
+  clientePreSelecionado?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [clienteId, setClienteId] = useState<string>(clientes[0]?.id ?? "");
+  const [clienteId, setClienteId] = useState<string>(
+    clientePreSelecionado && clientes.some((c) => c.id === clientePreSelecionado)
+      ? clientePreSelecionado
+      : clientes[0]?.id ?? "",
+  );
   const [validadeDias, setValidadeDias] = useState(String(catalogo.validadeOrcamentoDias));
   const [prazoDias, setPrazoDias] = useState("");
   const [condicoesPagamento, setCondicoesPagamento] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [desconto, setDesconto] = useState("0");
   const [itens, setItens] = useState<ItemForm[]>([novoItem(catalogo)]);
+
+  // Produtos do cliente atualmente selecionado
+  const produtosDoCliente = produtosPorCliente[clienteId] ?? [];
+
+  /**
+   * Carrega um produto cadastrado do cliente nos campos do item.
+   * Mantém o que não vier do produto (ex: se produto não tem material,
+   * mantém o material já escolhido no item).
+   */
+  function carregarProduto(uid: string, produtoId: string) {
+    const p = produtosDoCliente.find((x) => x.id === produtoId);
+    if (!p) return;
+    setItens((prev) =>
+      prev.map((it) =>
+        it.uid !== uid
+          ? it
+          : {
+              ...it,
+              descricao: p.nome + (p.descricao ? ` — ${p.descricao}` : ""),
+              larguraCm: p.larguraCm != null ? String(p.larguraCm) : it.larguraCm,
+              alturaCm: p.alturaCm != null ? String(p.alturaCm) : it.alturaCm,
+              quantidade: String(p.quantidadePadrao),
+              materialId: p.materialId ?? it.materialId,
+              impressaoId: p.impressaoId ?? it.impressaoId,
+              acabamentoId: p.acabamentoId ?? it.acabamentoId,
+              margemPct: p.margemPct != null ? String(p.margemPct) : it.margemPct,
+            },
+      ),
+    );
+  }
 
   // Calcula resultado de cada item
   const resultados = useMemo(
@@ -238,7 +289,9 @@ export function NovoOrcamentoForm({
             item={it}
             catalogo={catalogo}
             resultado={resultados[ix]}
+            produtosDoCliente={produtosDoCliente}
             onChange={(patch) => patchItem(it.uid, patch)}
+            onCarregarProduto={(produtoId) => carregarProduto(it.uid, produtoId)}
             onRemove={itens.length > 1 ? () => removeItem(it.uid) : undefined}
           />
         ))}
@@ -343,14 +396,18 @@ function ItemCard({
   item,
   catalogo,
   resultado,
+  produtosDoCliente,
   onChange,
+  onCarregarProduto,
   onRemove,
 }: {
   numero: number;
   item: ItemForm;
   catalogo: CatalogoData;
   resultado: ReturnType<typeof calcularPorM2> | null;
+  produtosDoCliente: ClienteProdutoOption[];
   onChange: (patch: Partial<ItemForm>) => void;
+  onCarregarProduto: (produtoId: string) => void;
   onRemove?: () => void;
 }) {
   // Mapas { value: label } para o Base UI exibir o nome no SelectValue
@@ -363,6 +420,11 @@ function ItemCard({
   const acabamentosItems = {
     [NENHUM]: "Sem acabamento adicional",
     ...Object.fromEntries(catalogo.acabamentos.map((a) => [a.id, a.nome])),
+  };
+  const PLACEHOLDER_PROD = "__produto__";
+  const produtosItems: Record<string, string> = {
+    [PLACEHOLDER_PROD]: "Selecionar produto cadastrado…",
+    ...Object.fromEntries(produtosDoCliente.map((p) => [p.id, p.nome])),
   };
 
   return (
@@ -378,6 +440,42 @@ function ItemCard({
         )}
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* ATALHO: produtos cadastrados deste cliente */}
+        {produtosDoCliente.length > 0 && (
+          <div className="rounded-md border-2 border-cyan/40 bg-cyan/5 p-3 space-y-1.5">
+            <Label className="text-cyan font-semibold flex items-center gap-1.5">
+              ⚡ Carregar produto cadastrado
+            </Label>
+            <Select
+              value={PLACEHOLDER_PROD}
+              onValueChange={(v) => {
+                if (v && v !== PLACEHOLDER_PROD) onCarregarProduto(v);
+              }}
+              items={produtosItems}
+            >
+              <SelectTrigger className="w-full bg-card">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={PLACEHOLDER_PROD}>
+                  Selecionar produto cadastrado…
+                </SelectItem>
+                {produtosDoCliente.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.nome}
+                    {p.larguraCm && p.alturaCm
+                      ? ` · ${p.larguraCm}×${p.alturaCm}cm`
+                      : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Escolha pra preencher os campos abaixo automaticamente.
+            </p>
+          </div>
+        )}
+
         <div className="space-y-1.5">
           <Label>Descrição</Label>
           <Input

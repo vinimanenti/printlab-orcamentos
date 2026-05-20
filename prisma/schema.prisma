@@ -154,6 +154,7 @@ model Cliente {
   orcamentos Orcamento[]
   pedidos    Pedido[]
   anexos     Anexo[]
+  produtos   ClienteProduto[]
 
   @@index([nome])
   @@index([documento])
@@ -189,9 +190,10 @@ model Material {
   saldoM2         Decimal @default(0) @db.Decimal(12, 2)
   ativo           Boolean @default(true)
 
-  movimentos     EstoqueMovimento[]
-  orcamentoItens OrcamentoItem[]
-  pedidoItens    PedidoItem[]
+  movimentos      EstoqueMovimento[]
+  orcamentoItens  OrcamentoItem[]
+  pedidoItens     PedidoItem[]
+  clienteProdutos ClienteProduto[]
 
   @@index([ativo])
 }
@@ -202,8 +204,9 @@ model TipoImpressao {
   precoM2 Decimal @db.Decimal(12, 2)
   ativo   Boolean @default(true)
 
-  orcamentoItens OrcamentoItem[]
-  pedidoItens    PedidoItem[]
+  orcamentoItens  OrcamentoItem[]
+  pedidoItens     PedidoItem[]
+  clienteProdutos ClienteProduto[]
 }
 
 model Acabamento {
@@ -213,8 +216,9 @@ model Acabamento {
   precoFixo Decimal? @db.Decimal(12, 2)
   ativo     Boolean  @default(true)
 
-  orcamentoItens OrcamentoItem[]
-  pedidoItens    PedidoItem[]
+  orcamentoItens  OrcamentoItem[]
+  pedidoItens     PedidoItem[]
+  clienteProdutos ClienteProduto[]
 }
 
 model Produto {
@@ -547,6 +551,38 @@ model HistoricoAlteracao {
 
   @@index([entidade, entidadeId])
   @@index([criadoEm])
+}
+
+// ============ PRODUTOS DO CLIENTE ============
+
+/// Produtos pré-cadastrados por cliente — pra clientes que sempre
+/// compram o mesmo item. Funciona como "favoritos" — ao criar
+/// orçamento, o vendedor escolhe o produto e os campos da calculadora
+/// já vêm preenchidos (medida, material, impressão, acabamento, margem).
+model ClienteProduto {
+  id               String         @id @default(cuid())
+  clienteId        String
+  nome             String /// "Adesivo Resina 3L"
+  descricao        String? /// detalhes técnicos
+  larguraCm        Decimal?       @db.Decimal(8, 2)
+  alturaCm         Decimal?       @db.Decimal(8, 2)
+  quantidadePadrao Int            @default(1)
+  materialId       String?
+  impressaoId      String?
+  acabamentoId     String?
+  margemPct        Decimal?       @db.Decimal(5, 2)
+  observacoes      String?
+  ativo            Boolean        @default(true)
+  criadoEm         DateTime       @default(now())
+  atualizadoEm     DateTime       @updatedAt
+
+  cliente    Cliente        @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  material   Material?      @relation(fields: [materialId], references: [id])
+  impressao  TipoImpressao? @relation(fields: [impressaoId], references: [id])
+  acabamento Acabamento?    @relation(fields: [acabamentoId], references: [id])
+
+  @@index([clienteId, ativo])
+  @@index([nome])
 }
 
 // ============ COMISSÕES ============
