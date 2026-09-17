@@ -153,7 +153,7 @@ export default async function DashboardPage() {
               n="05"
               icon={<Calculator className="size-4" />}
               title="Calculadora"
-              desc="Cotação rápida — m² ou cartela."
+              desc="Cotação rápida — m², cartela ou DTF."
             />
             <NavCard
               href="/clientes"
@@ -186,6 +186,13 @@ export default async function DashboardPage() {
               icon={<Settings className="size-4" />}
               title="Configurações"
               desc="Catálogo de preços e templates."
+            />
+            <NavCard
+              href="/calculadora?tipo=dtf"
+              n="10"
+              icon={<Calculator className="size-4" />}
+              title="Calculadora DTF"
+              desc="Orçamento por metro linear para cliente ou revendedor."
             />
           </div>
         </section>

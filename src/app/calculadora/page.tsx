@@ -5,11 +5,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/page-header";
 import { CalculadoraForm } from "./calculadora-form";
 import { CartelaForm } from "./cartela-form";
+import { DtfForm } from "./dtf-form";
 
 export const metadata = { title: "Calculadora" };
 
-export default async function CalculadoraPage() {
+export default async function CalculadoraPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tipo?: string | string[] }>;
+}) {
   const user = await verifySession();
+  const { tipo } = await searchParams;
+  const abaInicial = tipo === "dtf" || tipo === "cartela" ? tipo : "m2";
 
   const [materiaisRaw, impressoesRaw, acabamentosRaw, config] = await Promise.all([
     prisma.material.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } }),
@@ -47,12 +54,13 @@ export default async function CalculadoraPage() {
         <PageHeader
           eyebrow="Cotação rápida"
           title="Calculadora de adesivos"
-          description="Por medida ou por cartela. Resultado ao vivo com texto pronto para WhatsApp."
+          description="Por medida, por cartela ou DTF por metro linear. Resultado ao vivo com texto pronto para WhatsApp."
         />
-        <Tabs defaultValue="m2" className="space-y-4">
-          <TabsList>
+        <Tabs key={abaInicial} defaultValue={abaInicial} className="space-y-4">
+          <TabsList className="h-auto flex-wrap">
             <TabsTrigger value="m2">Por medida (m²)</TabsTrigger>
             <TabsTrigger value="cartela">Por cartela</TabsTrigger>
+            <TabsTrigger value="dtf">DTF</TabsTrigger>
           </TabsList>
           <TabsContent value="m2">
             <CalculadoraForm
@@ -71,6 +79,9 @@ export default async function CalculadoraPage() {
               margemMinimaPct={margemMinimaPct}
               empresaNome={empresaNome}
             />
+          </TabsContent>
+          <TabsContent value="dtf" keepMounted>
+            <DtfForm />
           </TabsContent>
         </Tabs>
       </main>

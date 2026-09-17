@@ -7,6 +7,7 @@ import {
   calcularPorCartela,
   melhorAproveitamento,
 } from "../src/lib/calculadoras";
+import { calcItem, type CustomerType } from "../src/lib/dtf";
 
 let failures = 0;
 function check(label: string, actual: number, expected: number, tol = 0.01) {
@@ -74,6 +75,68 @@ const r4 = calcularPorM2({
 });
 check("margem efetiva = 30%", r4.margemPct, 30);
 check("flag margemAbaixoDaMinima", r4.margemAbaixoDaMinima ? 1 : 0, 1);
+
+console.log("\n=== DTF: tarifas, limites e arredondamento ===");
+const dtfCases: {
+  label: string;
+  width: number;
+  height: number;
+  qty: number;
+  type: CustomerType;
+  meters: number;
+  rate: number;
+  total: number;
+}[] = [
+  { label: "Cliente, tarifa base em 10 cm", width: 30, height: 10, qty: 1, type: "cliente", meters: 0.1, rate: 250, total: 25 },
+  { label: "Revendedor, tarifa base", width: 30, height: 10, qty: 1, type: "revendedor", meters: 0.1, rate: 150, total: 15 },
+  { label: "Cliente abaixo de 10 cm", width: 5, height: 9.9, qty: 1, type: "cliente", meters: 0.099, rate: 400, total: 39.6 },
+  { label: "Revendedor abaixo de 10 cm", width: 5, height: 5, qty: 1, type: "revendedor", meters: 0.05, rate: 400, total: 20 },
+  { label: "Cliente abaixo de 5 m", width: 30, height: 499.9, qty: 1, type: "cliente", meters: 4.999, rate: 250, total: 1249.75 },
+  { label: "Cliente com exatamente 5 m", width: 30, height: 50, qty: 10, type: "cliente", meters: 5, rate: 200, total: 1000 },
+  { label: "Revendedor com exatamente 5 m", width: 30, height: 50, qty: 10, type: "revendedor", meters: 5, rate: 100, total: 500 },
+  { label: "Cliente, tarifa mínima com desconto", width: 5, height: 5, qty: 100, type: "cliente", meters: 5, rate: 350, total: 1750 },
+  { label: "Revendedor, tarifa mínima com desconto", width: 5, height: 5, qty: 100, type: "revendedor", meters: 5, rate: 350, total: 1750 },
+  { label: "Acima de 5 m", width: 30, height: 60, qty: 10, type: "cliente", meters: 6, rate: 200, total: 1200 },
+  { label: "Largura menor sem encaixe lateral", width: 1, height: 50, qty: 10, type: "cliente", meters: 5, rate: 200, total: 1000 },
+  { label: "Medida decimal", width: 21, height: 29.7, qty: 3, type: "cliente", meters: 0.891, rate: 250, total: 222.75 },
+  { label: "Arredondamento para centavos", width: 20, height: 10.01, qty: 1, type: "cliente", meters: 0.1001, rate: 250, total: 25.03 },
+];
+for (const scenario of dtfCases) {
+  const result = calcItem(scenario.width, scenario.height, scenario.qty, scenario.type);
+  check(`${scenario.label}: metragem`, result?.linearM ?? NaN, scenario.meters, 1e-9);
+  check(`${scenario.label}: tarifa`, result?.pricePerM ?? NaN, scenario.rate, 0);
+  check(`${scenario.label}: total`, result?.total ?? NaN, scenario.total, 1e-9);
+}
+
+console.log("\n=== DTF: vários itens e desconto individual ===");
+const dtfItemA = calcItem(30, 100, 3, "cliente");
+const dtfItemB = calcItem(20, 100, 2, "cliente");
+check("Dois itens somam 5 m", (dtfItemA?.linearM ?? NaN) + (dtfItemB?.linearM ?? NaN), 5, 0);
+check("Volume não é somado entre itens para desconto", (dtfItemA?.total ?? NaN) + (dtfItemB?.total ?? NaN), 1250, 0);
+
+console.log("\n=== DTF: entradas inválidas ===");
+const invalidDtfCases: [string, number, number, number][] = [
+  ["Largura zero", 0, 10, 1],
+  ["Largura negativa", -1, 10, 1],
+  ["Largura acima do rolo", 30.1, 10, 1],
+  ["Largura não numérica", NaN, 10, 1],
+  ["Largura infinita", Infinity, 10, 1],
+  ["Altura zero", 10, 0, 1],
+  ["Altura negativa", 10, -1, 1],
+  ["Altura não numérica", 10, NaN, 1],
+  ["Altura infinita", 10, Infinity, 1],
+  ["Quantidade zero", 10, 10, 0],
+  ["Quantidade negativa", 10, 10, -1],
+  ["Quantidade fracionada", 10, 10, 1.5],
+  ["Quantidade não numérica", 10, 10, NaN],
+  ["Quantidade infinita", 10, 10, Infinity],
+  ["Quantidade fora da precisão segura", 10, 10, Number.MAX_SAFE_INTEGER + 1],
+  ["Estouro da metragem", 10, Number.MAX_VALUE, 2],
+  ["Total fora da precisão segura", 10, 1e15, 1],
+];
+for (const [label, width, height, qty] of invalidDtfCases) {
+  check(label, calcItem(width, height, qty, "cliente") === null ? 1 : 0, 1, 0);
+}
 
 console.log(`\n${failures === 0 ? "✓ Tudo OK" : "✗ " + failures + " falhas"}\n`);
 process.exit(failures === 0 ? 0 : 1);
