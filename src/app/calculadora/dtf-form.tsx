@@ -2,7 +2,7 @@
 
 import { useState, useRef, useMemo, useCallback, type ChangeEvent } from "react";
 import { toast } from "sonner";
-import { calcItem, ROLL_WIDTH, type CustomerType } from "@/lib/dtf";
+import { calcItems, ROLL_WIDTH, STICKER_GAP_CM, type CustomerType } from "@/lib/dtf";
 import "./dtf.css";
 
 type Item = { id: number; width: string; height: string; qty: string; desc: string; photo: string | null };
@@ -31,9 +31,14 @@ export function DtfForm() {
   }, []);
 
   const results = useMemo(() => {
-    return items.map(it => ({
+    const calculations = calcItems(items.map(it => ({
+      widthCm: Number(it.width),
+      heightCm: Number(it.height),
+      qty: Number(it.qty),
+    })), type);
+    return items.map((it, index) => ({
       ...it,
-      calc: calcItem(Number(it.width), Number(it.height), Number(it.qty), type),
+      calc: calculations[index],
     }));
   }, [items, type]);
 
@@ -41,12 +46,15 @@ export function DtfForm() {
     const valid = results.filter(r => r.calc);
     const totalM = valid.reduce((s, r) => s + r.calc!.linearM, 0);
     const totalPrice = valid.reduce((s, r) => s + r.calc!.total, 0);
-    return { count: valid.length, totalM, totalPrice, items: valid.length };
+    const totalGapCm = valid.reduce((s, r) => s + r.calc!.gapCm, 0);
+    const totalQty = valid.reduce((s, r) => s + r.calc!.qty, 0);
+    return { count: valid.length, totalM, totalPrice, totalGapCm, totalQty };
   }, [results]);
 
   const buildText = () => {
     let text = `*Orçamento DTF — ${type === 'cliente' ? 'Cliente' : 'Revendedor'}*\n`;
-    text += `Largura do rolo: ${ROLL_WIDTH}cm\n\n`;
+    text += `Largura do rolo: ${ROLL_WIDTH}cm\n`;
+    text += `Espaçamento: ${STICKER_GAP_CM}cm entre adesivos, incluído na metragem\n\n`;
     results.forEach((r, i) => {
       if (!r.calc) return;
       text += `*Item ${i + 1}*${r.desc ? ` — ${r.desc}` : ''}\n`;
@@ -58,7 +66,8 @@ export function DtfForm() {
     });
     text += `———————————\n`;
     text += `*TOTAL: ${fmt(totals.totalPrice)}*\n`;
-    text += `${totals.totalM.toFixed(2)}m lineares · ${totals.count} item(s)`;
+    text += `${totals.totalM.toFixed(2)}m lineares · ${totals.totalQty} adesivo(s) · ${totals.count} item(s)\n`;
+    text += `Espaçamento total incluído: ${totals.totalGapCm}cm`;
     return text;
   };
 
@@ -92,12 +101,12 @@ export function DtfForm() {
       <div className="roll-info">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         {type === 'cliente'
-          ? <>Base: R$250/m · Abaixo 10cm: R$400/m · Desconto a partir de 5m por item: R$50/m</>
-          : <>Base: R$150/m · Abaixo 10cm: R$400/m · Desconto a partir de 5m por item: R$50/m</>
+          ? <>Base: R$250/m · Orçamento abaixo de 10cm lineares no total: R$400/m · Desconto a partir de 5m por item: R$50/m</>
+          : <>Base: R$150/m · Orçamento abaixo de 10cm lineares no total: R$400/m · Desconto a partir de 5m por item: R$50/m</>
         }
       </div>
 
-      <p className="pricing-note">Metragem = altura × quantidade, sem encaixe lado a lado. O desconto é calculado por item e também vale para a tarifa mínima. Cotação rápida: não salva no cadastro de orçamentos. As fotos ficam nesta tela; o compartilhamento envia apenas texto.</p>
+      <p className="pricing-note">Metragem = soma de altura × quantidade de todos os itens + {STICKER_GAP_CM} cm entre cada adesivo, inclusive entre itens diferentes. Não há espaço adicional após o último adesivo nem encaixe lado a lado. O limite de 10 cm considera essa soma total; o desconto de 5 m é calculado por item. Cotação rápida: não salva no cadastro de orçamentos. As fotos ficam nesta tela; o compartilhamento envia apenas texto.</p>
       {/* Items */}
       {results.map((r, idx) => (
         <ItemCard key={r.id} item={r} idx={idx} total={items.length}
@@ -119,6 +128,14 @@ export function DtfForm() {
             <div className="summary-row">
               <span className="label">Itens</span>
               <span className="value">{totals.count}</span>
+            </div>
+            <div className="summary-row">
+              <span className="label">Quantidade de adesivos</span>
+              <span className="value">{totals.totalQty}</span>
+            </div>
+            <div className="summary-row">
+              <span className="label">Espaçamento incluído</span>
+              <span className="value">{totals.totalGapCm} cm</span>
             </div>
             <div className="summary-row">
               <span className="label">Metragem total</span>
@@ -144,7 +161,7 @@ export function DtfForm() {
   );
 }
 
-function ItemCard({ item, idx, total, onUpdate, onRemove }: { item: Item & { calc: ReturnType<typeof calcItem> }; idx: number; total: number; onUpdate: (id: number, field: keyof Omit<Item, "id">, value: string | null) => void; onRemove: (id: number) => void }) {
+function ItemCard({ item, idx, total, onUpdate, onRemove }: { item: Item & { calc: ReturnType<typeof calcItems>[number] }; idx: number; total: number; onUpdate: (id: number, field: keyof Omit<Item, "id">, value: string | null) => void; onRemove: (id: number) => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handlePhoto = (e: ChangeEvent<HTMLInputElement>) => {
