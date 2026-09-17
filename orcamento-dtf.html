@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orçamento DTF — PrintLab</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f5f0;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --text2: #666;
+      --text3: #999;
+      --border: #e5e3dc;
+      --accent: #2563eb;
+      --accent2: #1d4ed8;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --red: #dc2626;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    
+    .container { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+    
+    /* Header */
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 24px; border-bottom: 2px solid var(--text); margin-bottom: 32px; }
+    .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+    .header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    
+    /* Type toggle */
+    .type-toggle { display: flex; border: 2px solid var(--text); border-radius: 8px; overflow: hidden; }
+    .type-btn { padding: 10px 24px; font-weight: 600; font-size: 13px; border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; background: var(--bg); color: var(--text); }
+    .type-btn.active { background: var(--text); color: #fff; }
+    .type-btn:not(.active):hover { background: #e8e7e2; }
+    
+    /* Item card */
+    .item-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; position: relative; transition: box-shadow 0.2s; }
+    .item-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .item-num { font-size: 12px; font-weight: 700; color: var(--text3); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .item-remove { background: none; border: none; cursor: pointer; color: var(--text3); padding: 4px; transition: color 0.15s; }
+    .item-remove:hover { color: var(--red); }
+    
+    .item-grid { display: grid; grid-template-columns: 140px 1fr; gap: 20px; }
+    @media (max-width: 600px) { .item-grid { grid-template-columns: 1fr; } }
+    
+    /* Photo upload */
+    .photo-zone { width: 140px; height: 140px; border: 2px dashed var(--border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; overflow: hidden; position: relative; }
+    .photo-zone:hover { border-color: var(--accent); background: rgba(37,99,235,0.03); }
+    .photo-zone img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .photo-zone .photo-label { font-size: 11px; color: var(--text3); margin-top: 6px; text-align: center; line-height: 1.3; }
+    .photo-zone .photo-clear { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+    
+    /* Fields */
+    .fields { display: flex; flex-direction: column; gap: 14px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .field label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 4px; letter-spacing: 0.3px; }
+    .field input, .field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; color: var(--text); transition: border 0.15s; background: #fafaf8; }
+    .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+    .field input[type="number"] { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+    .field textarea { resize: vertical; min-height: 60px; font-size: 13px; }
+    
+    /* Price display inside card */
+    .item-price { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .item-price .price-detail { font-size: 12px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+    .item-price .price-value { font-size: 22px; font-weight: 800; color: var(--green); font-family: 'JetBrains Mono', monospace; }
+    .item-price .price-alert { font-size: 11px; color: var(--orange); font-weight: 500; }
+    
+    /* Actions */
+    .add-btn { width: 100%; padding: 14px; border: 2px dashed var(--border); border-radius: var(--radius); background: none; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.15s; margin-bottom: 24px; }
+    .add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(37,99,235,0.03); }
+    
+    /* Summary */
+    .summary { background: var(--text); color: #fff; border-radius: var(--radius); padding: 28px; margin-top: 8px; }
+    .summary-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .summary-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+    .summary-row .label { color: rgba(255,255,255,0.7); }
+    .summary-row .value { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+    .summary-row.discount .value { color: #4ade80; }
+    .summary-divider { height: 1px; background: rgba(255,255,255,0.15); margin: 8px 0; }
+    .summary-total { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .summary-total .label { font-size: 16px; font-weight: 700; }
+    .summary-total .value { font-size: 32px; font-weight: 900; font-family: 'JetBrains Mono', monospace; letter-spacing: -1px; }
+    
+    .summary-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-share { flex: 1; padding: 14px; border-radius: 8px; border: none; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .btn-whatsapp { background: #25D366; color: #fff; }
+    .btn-whatsapp:hover { background: #1ea952; }
+    .btn-copy { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-copy:hover { background: rgba(255,255,255,0.2); }
+    .btn-pdf { background: var(--accent); color: #fff; }
+    .btn-pdf:hover { background: var(--accent2); }
+    
+    /* Roll width indicator */
+    .roll-info { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #f0f4ff; border: 1px solid #dbeafe; border-radius: 8px; font-size: 12px; color: var(--accent); font-weight: 500; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container" id="app"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.0/babel.min.js"></script>
+  
+  <script type="text/babel">
+    const { useState, useRef, useMemo, useCallback } = React;
+    
+    const ROLL_WIDTH = 30; // cm
+    const PRICING = {
+      cliente:    { base: 250, min10: 400, discount5m: 50 },
+      revendedor: { base: 150, min10: 400, discount5m: 50 },
+    };
+    
+    const calcItem = (widthCm, heightCm, qty, type) => {
+      if (!widthCm || !heightCm || !qty) return null;
+      const p = PRICING[type];
+      const linearCm = heightCm * qty;
+      const linearM = linearCm / 100;
+      
+      let pricePerM = p.base;
+      let alert = null;
+      
+      if (heightCm < 10) {
+        pricePerM = p.min10;
+        alert = "Altura abaixo de 10cm — tarifa mínima aplicada";
+      }
+      
+      if (linearM >= 5) {
+        pricePerM -= p.discount5m;
+        alert = `Desconto volume: −R$${p.discount5m}/m (${linearM.toFixed(1)}m total)`;
+      }
+      
+      const total = linearM * pricePerM;
+      return { linearCm, linearM, pricePerM, total, alert, widthCm, heightCm, qty };
+    };
+    
+    const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    
+    const emptyItem = () => ({ id: Date.now(), width: '', height: '', qty: 1, desc: '', photo: null });
+    
+    function App() {
+      const [type, setType] = useState('cliente');
+      const [items, setItems] = useState([emptyItem()]);
+      const [copied, setCopied] = useState(false);
+      
+      const updateItem = useCallback((id, field, value) => {
+        setItems(prev => prev.map(it => it.id === id ? { ...it, [field]: value } : it));
+      }, []);
+      
+      const removeItem = useCallback((id) => {
+        setItems(prev => prev.length > 1 ? prev.filter(it => it.id !== id) : prev);
+      }, []);
+      
+      const addItem = useCallback(() => {
+        setItems(prev => [...prev, emptyItem()]);
+      }, []);
+      
+      const results = useMemo(() => {
+        return items.map(it => ({
+          ...it,
+          calc: calcItem(parseFloat(it.width), parseFloat(it.height), parseInt(it.qty) || 0, type),
+        }));
+      }, [items, type]);
+      
+      const totals = useMemo(() => {
+        const valid = results.filter(r => r.calc);
+        const totalM = valid.reduce((s, r) => s + r.calc.linearM, 0);
+        const totalPrice = valid.reduce((s, r) => s + r.calc.total, 0);
+        return { count: valid.length, totalM, totalPrice, items: valid.length };
+      }, [results]);
+      
+      const buildText = () => {
+        let text = `*Orçamento DTF — ${type === 'cliente' ? 'Cliente' : 'Revendedor'}*\n`;
+        text += `Largura do rolo: ${ROLL_WIDTH}cm\n\n`;
+        results.forEach((r, i) => {
+          if (!r.calc) return;
+          text += `*Item ${i + 1}*${r.desc ? ` — ${r.desc}` : ''}\n`;
+          text += `  ${r.calc.widthCm}cm × ${r.calc.heightCm}cm · ${r.calc.qty} un.\n`;
+          text += `  ${r.calc.linearM.toFixed(2)}m linear × ${fmt(r.calc.pricePerM)}/m\n`;
+          text += `  *${fmt(r.calc.total)}*\n`;
+          if (r.calc.alert) text += `  ⚠ ${r.calc.alert}\n`;
+          text += '\n';
+        });
+        text += `———————————\n`;
+        text += `*TOTAL: ${fmt(totals.totalPrice)}*\n`;
+        text += `${totals.totalM.toFixed(2)}m lineares · ${totals.count} item(s)`;
+        return text;
+      };
+      
+      const copyText = () => {
+        navigator.clipboard.writeText(buildText().replace(/\*/g, ''));
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+      
+      const shareWhatsApp = () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(buildText())}`, '_blank');
+      };
+      
+      return (
+        <div>
+          {/* Header */}
+          <div className="header">
+            <div>
+              <h1>Orçamento DTF</h1>
+              <p>Rolo {ROLL_WIDTH}cm · Impressão digital direta</p>
+            </div>
+            <div className="type-toggle">
+              <button className={`type-btn ${type === 'cliente' ? 'active' : ''}`} onClick={() => setType('cliente')}>Cliente</button>
+              <button className={`type-btn ${type === 'revendedor' ? 'active' : ''}`} onClick={() => setType('revendedor')}>Revendedor</button>
+            </div>
+          </div>
+          
+          {/* Pricing info */}
+          <div className="roll-info">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            {type === 'cliente'
+              ? <>Base: R$250/m · Abaixo 10cm: R$400/m · Acima 5m: R$200/m</>
+              : <>Base: R$150/m · Abaixo 10cm: R$400/m · Acima 5m: R$100/m</>
+            }
+          </div>
+          
+          {/* Items */}
+          {results.map((r, idx) => (
+            <ItemCard key={r.id} item={r} idx={idx} total={items.length}
+              onUpdate={updateItem} onRemove={removeItem} />
+          ))}
+          
+          <button className="add-btn" onClick={addItem}>+ Adicionar item ao orçamento</button>
+          
+          {/* Summary */}
+          {totals.count > 0 && (
+            <div className="summary">
+              <div className="summary-title">RESUMO DO ORÇAMENTO</div>
+              <div className="summary-rows">
+                <div className="summary-row">
+                  <span className="label">Tipo</span>
+                  <span className="value">{type === 'cliente' ? 'Cliente Final' : 'Revendedor'}</span>
+                </div>
+                <div className="summary-row">
+                  <span className="label">Itens</span>
+                  <span className="value">{totals.count}</span>
+                </div>
+                <div className="summary-row">
+                  <span className="label">Metragem total</span>
+                  <span className="value">{totals.totalM.toFixed(2)}m</span>
+                </div>
+              </div>
+              <div className="summary-divider"></div>
+              <div className="summary-total">
+                <span className="label">Total</span>
+                <span className="value">{fmt(totals.totalPrice)}</span>
+              </div>
+              <div className="summary-actions">
+                <button className="btn-share btn-whatsapp" onClick={shareWhatsApp}>
+                  WhatsApp
+                </button>
+                <button className="btn-share btn-copy" onClick={copyText}>
+                  {copied ? '✓ Copiado!' : 'Copiar texto'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    function ItemCard({ item, idx, total, onUpdate, onRemove }) {
+      const fileRef = React.useRef(null);
+      
+      const handlePhoto = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => onUpdate(item.id, 'photo', ev.target.result);
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      };
+      
+      const c = item.calc;
+      
+      return (
+        <div className="item-card">
+          <div className="item-header">
+            <span className="item-num">ITEM {String(idx + 1).padStart(2, '0')}</span>
+            {total > 1 && (
+              <button className="item-remove" onClick={() => onRemove(item.id)} title="Remover">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            )}
+          </div>
+          
+          <div className="item-grid">
+            {/* Photo */}
+            <div>
+              <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} hidden />
+              <div className="photo-zone" onClick={() => fileRef.current?.click()}>
+                {item.photo ? (
+                  <>
+                    <img src={item.photo} alt="Foto" />
+                    <button className="photo-clear" onClick={(e) => { e.stopPropagation(); onUpdate(item.id, 'photo', null); }}>×</button>
+                  </>
+                ) : (
+                  <>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span className="photo-label">Foto do<br/>adesivo</span>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* Fields */}
+            <div className="fields">
+              <div className="field" style={{marginBottom: 2}}>
+                <label>Descrição (opcional)</label>
+                <input type="text" placeholder="Ex: Logo empresa, adesivo redondo..." value={item.desc}
+                  onChange={e => onUpdate(item.id, 'desc', e.target.value)} />
+              </div>
+              <div className="field-row">
+                <div className="field">
+                  <label>Largura (cm)</label>
+                  <input type="number" placeholder="0" min="0" step="0.1" value={item.width}
+                    onChange={e => onUpdate(item.id, 'width', e.target.value)}
+                    style={parseFloat(item.width) > ROLL_WIDTH ? {borderColor: 'var(--red)', color: 'var(--red)'} : {}} />
+                  {parseFloat(item.width) > ROLL_WIDTH && (
+                    <span style={{fontSize: 10, color: 'var(--red)', marginTop: 2, display: 'block'}}>Máx {ROLL_WIDTH}cm (largura do rolo)</span>
+                  )}
+                </div>
+                <div className="field">
+                  <label>Altura (cm)</label>
+                  <input type="number" placeholder="0" min="0" step="0.1" value={item.height}
+                    onChange={e => onUpdate(item.id, 'height', e.target.value)} />
+                </div>
+                <div className="field">
+                  <label>Quantidade</label>
+                  <input type="number" placeholder="1" min="1" value={item.qty}
+                    onChange={e => onUpdate(item.id, 'qty', e.target.value)} />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Price */}
+          {c && (
+            <div className="item-price">
+              <div>
+                <div className="price-detail">
+                  {c.linearM.toFixed(2)}m × {fmt(c.pricePerM)}/m
+                </div>
+                {c.alert && <div className="price-alert">{c.alert}</div>}
+              </div>
+              <div className="price-value">{fmt(c.total)}</div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(App));
+  </script>
+</body>
+</html>
