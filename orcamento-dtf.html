@@ -112,8 +112,8 @@
     
     const ROLL_WIDTH = 30; // cm
     const PRICING = {
-      cliente:    { base: 250, min10: 400, discount5m: 50 },
-      revendedor: { base: 150, min10: 400, discount5m: 50 },
+      cliente:    { base: 150, min10: 200 },
+      revendedor: { base: 100, min10: 200 },
     };
     
     const calcItem = (widthCm, heightCm, qty, type) => {
@@ -128,11 +128,6 @@
       if (heightCm < 10) {
         pricePerM = p.min10;
         alert = "Altura abaixo de 10cm — tarifa mínima aplicada";
-      }
-      
-      if (linearM >= 5) {
-        pricePerM -= p.discount5m;
-        alert = `Desconto volume: −R$${p.discount5m}/m (${linearM.toFixed(1)}m total)`;
       }
       
       const total = linearM * pricePerM;
@@ -220,8 +215,8 @@
           <div className="roll-info">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             {type === 'cliente'
-              ? <>Base: R$250/m · Abaixo 10cm: R$400/m · Acima 5m: R$200/m</>
-              : <>Base: R$150/m · Abaixo 10cm: R$400/m · Acima 5m: R$100/m</>
+              ? <>Base: R$150/m · Abaixo 10cm: R$200/m</>
+              : <>Base: R$100/m · Abaixo 10cm: R$200/m</>
             }
           </div>
           

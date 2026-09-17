@@ -519,6 +519,9 @@ model ConfiguracaoSistema {
   empresaEndereco       String?
   empresaLogoPath       String?
   margemMinimaPct       Decimal  @default(20) @db.Decimal(5, 2)
+  dtfClienteMetro       Decimal  @default(150) @db.Decimal(10, 2)
+  dtfRevendedorMetro    Decimal  @default(100) @db.Decimal(10, 2)
+  dtfAbaixo10CmMetro    Decimal  @default(200) @db.Decimal(10, 2)
   prefixoOrcamento      String   @default("ORC")
   prefixoPedido         String   @default("PED")
   validadeOrcamentoDias Int      @default(7)

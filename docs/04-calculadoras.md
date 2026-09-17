@@ -2,13 +2,14 @@
 
 ## DTF por metro linear
 
+- As tarifas são editáveis por administradores em **Configurações → Preços DTF** (`/configuracoes/dtf`) e persistidas em `ConfiguracaoSistema`. A calculadora e seus textos compartilhados usam os preços salvos ao abrir a página. Os valores abaixo são os padrões iniciais.
 - Rolo com largura de 30 cm, sem encaixe lado a lado.
 - Comprimento total em cm = soma de `altura × quantidade` de todos os itens + `2 × (quantidade total de adesivos − 1)`.
 - Os 2 cm de espaçamento se aplicam entre adesivos, inclusive de itens diferentes. Não há espaço adicional antes do primeiro ou depois do último.
-- O limite de 10 cm considera o comprimento total do orçamento, incluindo os espaços. Abaixo de 10 cm, a tarifa é R$ 400/m; a partir de 10 cm, R$ 250/m para cliente e R$ 150/m para revendedor.
-- O desconto de R$ 50/m a partir de 5 m continua sendo calculado por item. O espaço entre dois itens é contabilizado no segundo item.
-- Exemplo: 3 adesivos de 4 cm de altura consomem `3 × 4 + 2 × 2 = 16 cm`, cobrados pela tarifa normal: R$ 40 para cliente ou R$ 24 para revendedor.
-- Exemplo com itens diferentes: um adesivo de 4 cm em cada um de dois itens consome `4 + 2 + 4 = 10 cm`, totalizando R$ 25 para cliente.
+- O limite de 10 cm considera o comprimento total do orçamento, incluindo os espaços. Abaixo de 10 cm, a tarifa é R$ 200/m para ambos os tipos; a partir de 10 cm, R$ 150/m para cliente final e R$ 100/m para revendedor.
+- Não há desconto por quantidade ou metragem. O espaço entre dois itens é contabilizado no segundo item.
+- Exemplo: 3 adesivos de 4 cm de altura consomem `3 × 4 + 2 × 2 = 16 cm`, cobrados pela tarifa normal: R$ 24 para cliente ou R$ 16 para revendedor.
+- Exemplo com itens diferentes: um adesivo de 4 cm em cada um de dois itens consome `4 + 2 + 4 = 10 cm`, totalizando R$ 15 para cliente.
 
 Todas usam `Decimal.js` via Prisma para precisão monetária. Funções abaixo em TS tipado; em produção retornam `Prisma.Decimal`.
 

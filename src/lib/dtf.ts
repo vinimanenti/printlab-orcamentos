@@ -5,9 +5,11 @@ export type DtfItemInput = { widthCm: number; heightCm: number; qty: number };
 
 export const ROLL_WIDTH = 30; // cm
 export const STICKER_GAP_CM = 2;
-const PRICING = {
-  cliente:    { base: 250, min10: 400, discount5m: 50 },
-  revendedor: { base: 150, min10: 400, discount5m: 50 },
+export type DtfPricing = { cliente: number; revendedor: number; abaixo10Cm: number };
+export const DEFAULT_DTF_PRICING: Readonly<DtfPricing> = {
+  cliente: 150,
+  revendedor: 100,
+  abaixo10Cm: 200,
 };
 
 function measureItem({ widthCm, heightCm, qty }: DtfItemInput, hasPreviousItem: boolean) {
@@ -22,19 +24,13 @@ function measureItem({ widthCm, heightCm, qty }: DtfItemInput, hasPreviousItem: 
   return { widthCm, heightCm, qty, gapCm, linearCm, linearM };
 }
 
-function priceItem(item: NonNullable<ReturnType<typeof measureItem>>, orderLinearCm: number, type: CustomerType) {
-  const p = PRICING[type];
-  let pricePerM = p.base;
+function priceItem(item: NonNullable<ReturnType<typeof measureItem>>, orderLinearCm: number, type: CustomerType, pricing: DtfPricing) {
+  let pricePerM = pricing[type];
   let alert = null;
 
   if (orderLinearCm < 10) {
-    pricePerM = p.min10;
+    pricePerM = pricing.abaixo10Cm;
     alert = "Orçamento abaixo de 10 cm lineares no total — tarifa mínima aplicada";
-  }
-
-  if (item.linearM >= 5) {
-    pricePerM -= p.discount5m;
-    alert = `Desconto volume: −R$${p.discount5m}/m (${item.linearM.toFixed(2)}m no item)`;
   }
 
   const total = new Decimal(item.linearM).times(pricePerM).toDecimalPlaces(2).toNumber();
@@ -42,12 +38,12 @@ function priceItem(item: NonNullable<ReturnType<typeof measureItem>>, orderLinea
   return { ...item, pricePerM, total, alert };
 }
 
-export function calcItems(items: DtfItemInput[], type: CustomerType) {
+export function calcItems(items: DtfItemInput[], type: CustomerType, pricing: DtfPricing = DEFAULT_DTF_PRICING) {
   let hasPreviousItem = false;
   const measured = items.map((input) => {
     const item = measureItem(input, hasPreviousItem);
     // Itens incompletos ou fora dos limites não alteram a metragem dos demais.
-    if (!item || !priceItem(item, item.linearCm, type)) return null;
+    if (!item || !priceItem(item, item.linearCm, type, pricing)) return null;
     hasPreviousItem = true;
     return item;
   });
@@ -56,9 +52,9 @@ export function calcItems(items: DtfItemInput[], type: CustomerType) {
     new Decimal(0),
   ).toNumber();
 
-  return measured.map((item) => item ? priceItem(item, orderLinearCm, type) : null);
+  return measured.map((item) => item ? priceItem(item, orderLinearCm, type, pricing) : null);
 }
 
-export const calcItem = (widthCm: number, heightCm: number, qty: number, type: CustomerType) => {
-  return calcItems([{ widthCm, heightCm, qty }], type)[0];
+export const calcItem = (widthCm: number, heightCm: number, qty: number, type: CustomerType, pricing: DtfPricing = DEFAULT_DTF_PRICING) => {
+  return calcItems([{ widthCm, heightCm, qty }], type, pricing)[0];
 };

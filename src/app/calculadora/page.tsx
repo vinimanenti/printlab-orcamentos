@@ -1,5 +1,6 @@
 import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_DTF_PRICING } from "@/lib/dtf";
 import { AppHeader } from "@/components/app-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/page-header";
@@ -45,6 +46,11 @@ export default async function CalculadoraPage({
 
   const margemMinimaPct = config ? Number(config.margemMinimaPct) : 20;
   const empresaNome = config?.empresaNome ?? "PrintLab";
+  const dtfPricing = config ? {
+    cliente: Number(config.dtfClienteMetro),
+    revendedor: Number(config.dtfRevendedorMetro),
+    abaixo10Cm: Number(config.dtfAbaixo10CmMetro),
+  } : DEFAULT_DTF_PRICING;
 
   return (
     <div className="min-h-screen">
@@ -81,7 +87,7 @@ export default async function CalculadoraPage({
             />
           </TabsContent>
           <TabsContent value="dtf" keepMounted>
-            <DtfForm />
+            <DtfForm pricing={dtfPricing} podeEditarPrecos={user.perfil === "ADM"} />
           </TabsContent>
         </Tabs>
       </main>

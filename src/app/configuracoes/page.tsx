@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Layers, Printer, Sparkles, MessageCircle, Building2, Users } from "lucide-react";
+import { Layers, Printer, Sparkles, MessageCircle, Building2, Users, Ruler } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
 
 export const metadata = { title: "Configurações" };
@@ -50,6 +50,13 @@ export default async function ConfiguracoesPage() {
         </Link>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ConfigCard
+            href="/configuracoes/dtf"
+            icon={<Ruler className="size-5" />}
+            title="Preços DTF"
+            count={3}
+            desc="Valor por metro para cliente final, revendedor e orçamentos abaixo de 10 cm."
+          />
           <ConfigCard
             href="/configuracoes/materiais"
             icon={<Layers className="size-5" />}

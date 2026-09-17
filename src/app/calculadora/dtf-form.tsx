@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useMemo, useCallback, type ChangeEvent } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import { calcItems, ROLL_WIDTH, STICKER_GAP_CM, type CustomerType } from "@/lib/dtf";
+import { calcItems, ROLL_WIDTH, STICKER_GAP_CM, type CustomerType, type DtfPricing } from "@/lib/dtf";
 import "./dtf.css";
 
 type Item = { id: number; width: string; height: string; qty: string; desc: string; photo: string | null };
@@ -11,7 +12,7 @@ const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', curren
 
 const emptyItem = (id: number): Item => ({ id, width: '', height: '', qty: '1', desc: '', photo: null });
 
-export function DtfForm() {
+export function DtfForm({ pricing, podeEditarPrecos }: { pricing: DtfPricing; podeEditarPrecos: boolean }) {
   const nextId = useRef(1);
   const [type, setType] = useState<CustomerType>('cliente');
   const [items, setItems] = useState<Item[]>([emptyItem(0)]);
@@ -35,12 +36,12 @@ export function DtfForm() {
       widthCm: Number(it.width),
       heightCm: Number(it.height),
       qty: Number(it.qty),
-    })), type);
+    })), type, pricing);
     return items.map((it, index) => ({
       ...it,
       calc: calculations[index],
     }));
-  }, [items, type]);
+  }, [items, type, pricing]);
 
   const totals = useMemo(() => {
     const valid = results.filter(r => r.calc);
@@ -90,6 +91,7 @@ export function DtfForm() {
         <div>
           <h2>Orçamento DTF</h2>
           <p>Rolo {ROLL_WIDTH}cm · Cotação por metro linear</p>
+          {podeEditarPrecos && <Link href="/configuracoes/dtf" className="mt-2 inline-block text-xs underline underline-offset-4">Editar preços DTF</Link>}
         </div>
         <div className="type-toggle">
           <button className={`type-btn ${type === 'cliente' ? 'active' : ''}`} aria-pressed={type === "cliente"} onClick={() => setType('cliente')}>Cliente</button>
@@ -100,13 +102,10 @@ export function DtfForm() {
       {/* Pricing info */}
       <div className="roll-info">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        {type === 'cliente'
-          ? <>Base: R$250/m · Orçamento abaixo de 10cm lineares no total: R$400/m · Desconto a partir de 5m por item: R$50/m</>
-          : <>Base: R$150/m · Orçamento abaixo de 10cm lineares no total: R$400/m · Desconto a partir de 5m por item: R$50/m</>
-        }
+        <span>Base: {fmt(pricing[type])}/m · Orçamento abaixo de 10cm lineares no total: {fmt(pricing.abaixo10Cm)}/m</span>
       </div>
 
-      <p className="pricing-note">Metragem = soma de altura × quantidade de todos os itens + {STICKER_GAP_CM} cm entre cada adesivo, inclusive entre itens diferentes. Não há espaço adicional após o último adesivo nem encaixe lado a lado. O limite de 10 cm considera essa soma total; o desconto de 5 m é calculado por item. Cotação rápida: não salva no cadastro de orçamentos. As fotos ficam nesta tela; o compartilhamento envia apenas texto.</p>
+      <p className="pricing-note">Metragem = soma de altura × quantidade de todos os itens + {STICKER_GAP_CM} cm entre cada adesivo, inclusive entre itens diferentes. Não há espaço adicional após o último adesivo nem encaixe lado a lado. O limite de 10 cm considera essa soma total. Cotação rápida: não salva no cadastro de orçamentos. As fotos ficam nesta tela; o compartilhamento envia apenas texto.</p>
       {/* Items */}
       {results.map((r, idx) => (
         <ItemCard key={r.id} item={r} idx={idx} total={items.length}

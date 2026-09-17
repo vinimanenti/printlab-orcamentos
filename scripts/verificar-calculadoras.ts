@@ -8,6 +8,7 @@ import {
   melhorAproveitamento,
 } from "../src/lib/calculadoras";
 import { calcItem, calcItems, type CustomerType } from "../src/lib/dtf";
+import { dtfPricingSchema } from "../src/lib/dtf-config";
 
 let failures = 0;
 function check(label: string, actual: number, expected: number, tol = 0.01) {
@@ -87,24 +88,24 @@ const dtfCases: {
   rate: number;
   total: number;
 }[] = [
-  { label: "Cliente, tarifa base em 10 cm", width: 30, height: 10, qty: 1, type: "cliente", meters: 0.1, rate: 250, total: 25 },
-  { label: "Revendedor, tarifa base", width: 30, height: 10, qty: 1, type: "revendedor", meters: 0.1, rate: 150, total: 15 },
-  { label: "Cliente abaixo de 10 cm", width: 5, height: 9.9, qty: 1, type: "cliente", meters: 0.099, rate: 400, total: 39.6 },
-  { label: "Revendedor abaixo de 10 cm", width: 5, height: 5, qty: 1, type: "revendedor", meters: 0.05, rate: 400, total: 20 },
-  { label: "Cliente abaixo de 5 m", width: 30, height: 499.9, qty: 1, type: "cliente", meters: 4.999, rate: 250, total: 1249.75 },
-  { label: "Cliente com exatamente 5 m incluindo espaços", width: 30, height: 48.2, qty: 10, type: "cliente", meters: 5, rate: 200, total: 1000 },
+  { label: "Cliente, tarifa base em 10 cm", width: 30, height: 10, qty: 1, type: "cliente", meters: 0.1, rate: 150, total: 15 },
+  { label: "Revendedor, tarifa base", width: 30, height: 10, qty: 1, type: "revendedor", meters: 0.1, rate: 100, total: 10 },
+  { label: "Cliente abaixo de 10 cm", width: 5, height: 9.9, qty: 1, type: "cliente", meters: 0.099, rate: 200, total: 19.8 },
+  { label: "Revendedor abaixo de 10 cm", width: 5, height: 5, qty: 1, type: "revendedor", meters: 0.05, rate: 200, total: 10 },
+  { label: "Cliente abaixo de 5 m", width: 30, height: 499.9, qty: 1, type: "cliente", meters: 4.999, rate: 150, total: 749.85 },
+  { label: "Cliente com exatamente 5 m incluindo espaços", width: 30, height: 48.2, qty: 10, type: "cliente", meters: 5, rate: 150, total: 750 },
   { label: "Revendedor com exatamente 5 m incluindo espaços", width: 30, height: 48.2, qty: 10, type: "revendedor", meters: 5, rate: 100, total: 500 },
-  { label: "Abaixo de 5 m incluindo espaços", width: 30, height: 48.19, qty: 10, type: "cliente", meters: 4.999, rate: 250, total: 1249.75 },
-  { label: "Adesivos de 5 cm somam mais de 10 cm, cliente", width: 5, height: 5, qty: 100, type: "cliente", meters: 6.98, rate: 200, total: 1396 },
+  { label: "Abaixo de 5 m incluindo espaços", width: 30, height: 48.19, qty: 10, type: "cliente", meters: 4.999, rate: 150, total: 749.85 },
+  { label: "Adesivos de 5 cm somam mais de 10 cm, cliente", width: 5, height: 5, qty: 100, type: "cliente", meters: 6.98, rate: 150, total: 1047 },
   { label: "Adesivos de 5 cm somam mais de 10 cm, revendedor", width: 5, height: 5, qty: 100, type: "revendedor", meters: 6.98, rate: 100, total: 698 },
-  { label: "Acima de 5 m", width: 30, height: 60, qty: 10, type: "cliente", meters: 6.18, rate: 200, total: 1236 },
-  { label: "Largura menor sem encaixe lateral", width: 1, height: 50, qty: 10, type: "cliente", meters: 5.18, rate: 200, total: 1036 },
-  { label: "Medida decimal", width: 21, height: 29.7, qty: 3, type: "cliente", meters: 0.931, rate: 250, total: 232.75 },
-  { label: "Arredondamento para centavos", width: 20, height: 10.01, qty: 1, type: "cliente", meters: 0.1001, rate: 250, total: 25.03 },
-  { label: "3 adesivos de 4 cm consomem 16 cm, cliente", width: 5, height: 4, qty: 3, type: "cliente", meters: 0.16, rate: 250, total: 40 },
-  { label: "3 adesivos de 4 cm consomem 16 cm, revendedor", width: 5, height: 4, qty: 3, type: "revendedor", meters: 0.16, rate: 150, total: 24 },
-  { label: "2 adesivos de 4 cm atingem exatamente 10 cm", width: 5, height: 4, qty: 2, type: "cliente", meters: 0.1, rate: 250, total: 25 },
-  { label: "Quantidade e espaços ainda abaixo de 10 cm", width: 5, height: 3.9, qty: 2, type: "cliente", meters: 0.098, rate: 400, total: 39.2 },
+  { label: "Acima de 5 m", width: 30, height: 60, qty: 10, type: "cliente", meters: 6.18, rate: 150, total: 927 },
+  { label: "Largura menor sem encaixe lateral", width: 1, height: 50, qty: 10, type: "cliente", meters: 5.18, rate: 150, total: 777 },
+  { label: "Medida decimal", width: 21, height: 29.7, qty: 3, type: "cliente", meters: 0.931, rate: 150, total: 139.65 },
+  { label: "Arredondamento para centavos", width: 20, height: 10.01, qty: 1, type: "cliente", meters: 0.1001, rate: 150, total: 15.02 },
+  { label: "3 adesivos de 4 cm consomem 16 cm, cliente", width: 5, height: 4, qty: 3, type: "cliente", meters: 0.16, rate: 150, total: 24 },
+  { label: "3 adesivos de 4 cm consomem 16 cm, revendedor", width: 5, height: 4, qty: 3, type: "revendedor", meters: 0.16, rate: 100, total: 16 },
+  { label: "2 adesivos de 4 cm atingem exatamente 10 cm", width: 5, height: 4, qty: 2, type: "cliente", meters: 0.1, rate: 150, total: 15 },
+  { label: "Quantidade e espaços ainda abaixo de 10 cm", width: 5, height: 3.9, qty: 2, type: "cliente", meters: 0.098, rate: 200, total: 19.6 },
 ];
 for (const scenario of dtfCases) {
   const result = calcItem(scenario.width, scenario.height, scenario.qty, scenario.type);
@@ -119,28 +120,46 @@ for (const type of ["cliente", "revendedor"] as const) {
   const [first, second] = calcItems(smallItems, type);
   check(`${type}: um único espaço entre dois itens`, (first?.gapCm ?? NaN) + (second?.gapCm ?? NaN), 2, 0);
   check(`${type}: metragem total de dois itens atinge 10 cm`, (first?.linearCm ?? NaN) + (second?.linearCm ?? NaN), 10, 0);
-  check(`${type}: primeiro item usa tarifa normal`, first?.pricePerM ?? NaN, type === "cliente" ? 250 : 150, 0);
-  check(`${type}: segundo item usa tarifa normal`, second?.pricePerM ?? NaN, type === "cliente" ? 250 : 150, 0);
-  check(`${type}: total do orçamento`, (first?.total ?? NaN) + (second?.total ?? NaN), type === "cliente" ? 25 : 15, 0);
+  check(`${type}: primeiro item usa tarifa normal`, first?.pricePerM ?? NaN, type === "cliente" ? 150 : 100, 0);
+  check(`${type}: segundo item usa tarifa normal`, second?.pricePerM ?? NaN, type === "cliente" ? 150 : 100, 0);
+  check(`${type}: total do orçamento`, (first?.total ?? NaN) + (second?.total ?? NaN), type === "cliente" ? 15 : 10, 0);
 }
 const belowMinimum = calcItems([{ widthCm: 5, heightCm: 3, qty: 1 }, { widthCm: 5, heightCm: 3, qty: 1 }], "cliente");
-check("Soma de 8 cm mantém tarifa mínima em todos os itens", belowMinimum.every(item => item?.pricePerM === 400) ? 1 : 0, 1, 0);
-check("Soma de 8 cm custa R$32", belowMinimum.reduce((sum, item) => sum + (item?.total ?? NaN), 0), 32, 0);
+check("Soma de 8 cm mantém tarifa mínima em todos os itens", belowMinimum.every(item => item?.pricePerM === 200) ? 1 : 0, 1, 0);
+check("Soma de 8 cm custa R$16", belowMinimum.reduce((sum, item) => sum + (item?.total ?? NaN), 0), 16, 0);
 const mixedItems = calcItems([{ widthCm: 5, heightCm: 4, qty: 2 }, { widthCm: 10, heightCm: 6, qty: 3 }], "cliente");
 check("5 adesivos em dois itens têm 4 espaços", mixedItems.reduce((sum, item) => sum + (item?.gapCm ?? NaN), 0), 8, 0);
 check("Medidas diferentes somam 34 cm com espaços", mixedItems.reduce((sum, item) => sum + (item?.linearCm ?? NaN), 0), 34, 0);
-check("Orçamento misto totaliza R$85", mixedItems.reduce((sum, item) => sum + (item?.total ?? NaN), 0), 85, 0);
+check("Orçamento misto totaliza R$51", mixedItems.reduce((sum, item) => sum + (item?.total ?? NaN), 0), 51, 0);
 check("Um único adesivo não recebe espaço adicional", calcItem(5, 4, 1, "cliente")?.gapCm ?? NaN, 0, 0);
-check("Remover um item reaplica a tarifa mínima", calcItems(smallItems.slice(0, 1), "cliente")[0]?.pricePerM ?? NaN, 400, 0);
+check("Remover um item reaplica a tarifa mínima", calcItems(smallItems.slice(0, 1), "cliente")[0]?.pricePerM ?? NaN, 200, 0);
 const incompleteItems = calcItems([smallItems[0], { widthCm: 0, heightCm: 500, qty: 1 }, smallItems[1]], "cliente");
 check("Item inválido não é calculado", incompleteItems[1] === null ? 1 : 0, 1, 0);
 check("Item inválido não acrescenta espaço nem metragem", incompleteItems.reduce((sum, item) => sum + (item?.linearCm ?? 0), 0), 10, 0);
 check("Orçamento vazio não gera resultados", calcItems([], "cliente").length, 0, 0);
 
-console.log("\n=== DTF: desconto de volume por item ===");
+console.log("\n=== DTF: sem desconto por volume ===");
 const [dtfItemA, dtfItemB] = calcItems([{ widthCm: 30, heightCm: 100, qty: 3 }, { widthCm: 20, heightCm: 100, qty: 2 }], "cliente");
 check("Dois itens somam 5,08 m com quatro espaços", (dtfItemA?.linearM ?? NaN) + (dtfItemB?.linearM ?? NaN), 5.08, 1e-9);
-check("Desconto de volume continua por item", (dtfItemA?.total ?? NaN) + (dtfItemB?.total ?? NaN), 1270, 0);
+check("Orçamento acima de 5 m mantém a tarifa base", (dtfItemA?.total ?? NaN) + (dtfItemB?.total ?? NaN), 762, 0);
+
+console.log("\n=== DTF: preços configuráveis ===");
+const customPricing = dtfPricingSchema.parse({ cliente: "175,50", revendedor: "120.25", abaixo10Cm: "230" });
+check("Configuração aceita centavos com vírgula", customPricing.cliente, 175.5, 0);
+check("Configuração aceita centavos com ponto", customPricing.revendedor, 120.25, 0);
+for (const type of ["cliente", "revendedor"] as const) {
+  check(`${type}: usa preço configurado em 1 m`, calcItem(30, 100, 1, type, customPricing)?.total ?? NaN, type === "cliente" ? 175.5 : 120.25, 0);
+  check(`${type}: mínimo configurado abaixo de 10 cm`, calcItem(5, 5, 1, type, customPricing)?.total ?? NaN, 11.5, 0);
+  check(`${type}: preço configurado sem desconto em 10 m`, calcItem(30, 1000, 1, type, customPricing)?.total ?? NaN, type === "cliente" ? 1755 : 1202.5, 0);
+  const configuredItems = calcItems(smallItems, type, customPricing);
+  check(`${type}: itens pequenos somados usam tarifa configurada normal`, configuredItems.every(item => item?.pricePerM === customPricing[type]) ? 1 : 0, 1, 0);
+}
+for (const invalidPrice of ["", " ", "0", "-1", "150,123", "1.234,56", "Infinity", "NaN", "1000000", null]) {
+  for (const field of ["cliente", "revendedor", "abaixo10Cm"] as const) {
+    const parsed = dtfPricingSchema.safeParse({ cliente: "150", revendedor: "100", abaixo10Cm: "200", [field]: invalidPrice });
+    check(`${field}: rejeita preço inválido ${String(invalidPrice)}`, parsed.success ? 1 : 0, 0, 0);
+  }
+}
 
 console.log("\n=== DTF: entradas inválidas ===");
 const invalidDtfCases: [string, number, number, number][] = [
